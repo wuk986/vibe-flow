@@ -1,28 +1,28 @@
 # vibe-flow
 
-Kanban-getriebener Vibe-Coding-Workflow für Claude Code, für jedes Projekt. Das Board (GitHub Projects oder Forgejo) ist die Source of Truth: Issue, Plan, umgesetzte Arbeit und Testanleitung stehen dort.
+A kanban-driven vibe coding workflow for Claude Code, usable in any project. The board (GitHub Projects or Forgejo) is the source of truth: the issue, the plan, the work done, and the manual test instructions all live there.
 
 ```
-/issue → Backlog → /work → In Progress → Review → (manuell prüfen) → /done → Done
+/issue → Backlog → /work → In Progress → Review → (manual check) → /done → Done
                               ↑                 │
-                              └── /work <n> <Feedback>
+                              └── /work <n> <feedback>
 ```
 
-| Befehl | Was passiert |
+| Command | What it does |
 |---|---|
-| `/init-project` | CLAUDE.md (ggf. via `/init`), Board mit 4 Spalten, Labels, Test-/Lint-Befehl, Sprachen, optional graphify |
-| `/issue <Beschreibung>` | Issue mit Ziel, Akzeptanzkriterien, Out of scope, Typ- und Area-Labels; nach deinem OK in Backlog |
-| `/work [#n] [Feedback]` | Branch, Plan-Kommentar, test-first umsetzen, Self-Review, Tests + Lint grün, PR, Übergabe-Kommentar, Review |
-| `/done [#n]` | Nach deiner manuellen Prüfung: Squash-Merge, Issue schließen, Done |
+| `/init-project` | CLAUDE.md (via `/init` if missing), board with 4 columns, labels, test/lint commands, languages, optional graphify |
+| `/issue <description>` | Issue with goal, acceptance criteria, out of scope, type and area labels; added to Backlog after your OK |
+| `/work [#n] [feedback]` | Branch, plan comment, test-first implementation, self-review, green tests + lint, PR, hand-over comment, Review |
+| `/done [#n]` | After your manual check: squash-merge, close the issue, Done |
 
-## Dateien
+## Files
 
-- [PRINCIPLES.md](PRINCIPLES.md): Coding-Prinzipien (nach [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)), die einzige Quelle dafür
-- [CONVENTIONS.md](CONVENTIONS.md): Status, Labels, Sprachen, CLAUDE.md-Abschnitt
-- [forges/](forges/): Adapter für GitHub (`gh`) und Forgejo (REST + Claude in Chrome für das Board)
-- [skills/](skills/): die vier Skills
+- [PRINCIPLES.md](PRINCIPLES.md): coding principles (after [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)), their single source
+- [CONVENTIONS.md](CONVENTIONS.md): statuses, labels, languages, the CLAUDE.md section
+- [forges/](forges/): adapters for GitHub (`gh`) and Forgejo (REST, plus Claude in Chrome for the board)
+- [skills/](skills/): the four skills
 
-## Installation
+## Install
 
 ```bash
 git clone https://github.com/wuk986/vibe-flow.git ~/.claude/vibe-flow
@@ -40,10 +40,10 @@ Windows (PowerShell):
 powershell -ExecutionPolicy Bypass -File $HOME\.claude\vibe-flow\install.ps1
 ```
 
-Das Skript verlinkt die Skills nach `~/.claude/skills` (Symlinks bzw. Junctions). Liegt der Clone woanders, wird er zusätzlich als `~/.claude/vibe-flow` verlinkt. Update: `git pull`; ein neuer Skill braucht einen erneuten Lauf des Skripts.
+The script links the skills into `~/.claude/skills` (symlinks or junctions). A clone kept elsewhere is additionally linked as `~/.claude/vibe-flow`. Update with `git pull`; re-run the script when a new skill is added.
 
-## Voraussetzungen
+## Requirements
 
-- **GitHub:** `gh`, angemeldet, mit Scope `project` (`gh auth refresh -s project`)
-- **Forgejo:** Umgebungsvariable `FORGEJO_TOKEN`, `curl`; Claude in Chrome für das Board
+- **GitHub:** `gh`, logged in, with the `project` scope (`gh auth refresh -s project`)
+- **Forgejo:** environment variable `FORGEJO_TOKEN`, `curl`; Claude in Chrome for the board
 - **Optional:** [graphify](https://pypi.org/project/graphifyy/) (`uv tool install graphifyy`)

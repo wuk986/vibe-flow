@@ -22,9 +22,7 @@ case "${1:-}" in
     if [ -z "$number" ]; then
       number=$(gh project create --owner "$owner" --title "$title" --format json -q .number)
     fi
-    if ! gh project view "$number" --owner "$owner" --format json -q '.repositories[]?.name' 2>/dev/null | grep -qx "${repo#*/}"; then
-      gh project link "$number" --owner "$owner" --repo "$repo" >/dev/null
-    fi
+    gh project link "$number" --owner "$owner" --repo "$repo" >/dev/null  # no-op when already linked
     current=$(status_field "$number" '| [.options[].name] | join(",")')
     if [ "$current" != "$STATUSES" ]; then
       # Replaces the options; only runs while the board is not yet set up.
@@ -44,7 +42,12 @@ case "${1:-}" in
     project=$2 issue=$3 status=$4
     project_id=$(gh project view "$project" --owner "$owner" --format json -q .id)
     url=$(gh issue view "$issue" --json url -q .url)
-    item_id=$(gh project item-add "$project" --owner "$owner" --url "$url" --format json -q .id)
+    # A freshly created issue can hit a transient "temporary conflict"; retry briefly.
+    for attempt in 1 2 3; do
+      item_id=$(gh project item-add "$project" --owner "$owner" --url "$url" --format json -q .id) && break
+      [ "$attempt" = 3 ] && exit 1
+      sleep 2
+    done
     field_id=$(status_field "$project" '| .id')
     option_id=$(status_field "$project" "| .options[] | select(.name==\"$status\") | .id")
     if [ -z "$option_id" ]; then
