@@ -1,10 +1,11 @@
-# Links vibe-flow into ~/.claude (Windows): the repo as ~/.claude/vibe-flow, each skill as ~/.claude/skills/<name>.
+# Links vibe-flow into ~/.claude (Windows): the repo as ~/.claude/vibe-flow, each skill as ~/.claude/skills/<name>,
+# the always-loaded rules as ~/.claude/rules/vibe-flow.
 # Directory junctions need neither admin rights nor developer mode.
 $ErrorActionPreference = 'Stop'
 
 $src = $PSScriptRoot
 $claude = Join-Path $HOME '.claude'
-New-Item -ItemType Directory -Force (Join-Path $claude 'skills') | Out-Null
+New-Item -ItemType Directory -Force (Join-Path $claude 'skills'), (Join-Path $claude 'rules') | Out-Null
 
 function Link($target, $path) {
     $item = Get-Item $path -Force -ErrorAction SilentlyContinue
@@ -18,6 +19,7 @@ function Link($target, $path) {
 
 $home_link = Join-Path $claude 'vibe-flow'
 if ($src -ne $home_link) { Link $src $home_link }
+Link (Join-Path $src 'rules') (Join-Path $claude 'rules\vibe-flow')
 Get-ChildItem (Join-Path $src 'skills') -Directory | ForEach-Object {
     Link $_.FullName (Join-Path $claude "skills\$($_.Name)")
 }

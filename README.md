@@ -18,7 +18,7 @@ A kanban-driven vibe coding workflow for Claude Code, usable in any project. The
 ## Files
 
 - [PRINCIPLES.md](PRINCIPLES.md): coding principles (after [andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills)), their single source
-- [RULES.md](RULES.md): the always-loaded rules, imported by each project's CLAUDE.md
+- [rules/vibe-flow.md](rules/vibe-flow.md): the always-loaded rules, linked into `~/.claude/rules/`
 - [CONVENTIONS.md](CONVENTIONS.md): statuses, assets, labels, risk classes, languages, the CLAUDE.md section
 - [REVIEW.md](REVIEW.md): the review checklist
 - [forges/](forges/): adapters for GitHub (`gh`) and Forgejo (REST, plus Claude in Chrome for the board)
@@ -47,7 +47,7 @@ Windows (PowerShell):
 powershell -ExecutionPolicy Bypass -File $HOME\.claude\vibe-flow\install.ps1
 ```
 
-The script links the skills into `~/.claude/skills` (symlinks or junctions). A clone kept elsewhere is additionally linked as `~/.claude/vibe-flow`. Update with `git pull`; re-run the script when a new skill is added, and re-run `/init-project` in a project when the CLAUDE.md section in CONVENTIONS.md has changed. Rule changes in RULES.md take effect without touching the project. Approve the import once per project when Claude Code asks; otherwise the rules are silently not loaded.
+The script links the skills into `~/.claude/skills` and the rules into `~/.claude/rules` (symlinks or junctions). A clone kept elsewhere is additionally linked as `~/.claude/vibe-flow`. Update with `git pull`; re-run the script when a new skill or link is added, and re-run `/init-project` in a project when the CLAUDE.md section in CONVENTIONS.md has changed. Rule changes take effect without touching the project.
 
 ## Requirements
 
