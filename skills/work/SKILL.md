@@ -1,6 +1,6 @@
 ---
 name: work
-description: Work a kanban issue end to end - Opus plans, Sonnet/Haiku builds test-first, Opus/Fable reviews, green gate, PR, move to Review.
+description: Work a kanban issue end to end - Opus plans, Sonnet/Haiku builds test-first, risk-based review (Sonnet/Opus/Fable), green gate, PR, move to Review.
 disable-model-invocation: true
 argument-hint: "[#n] [feedback from manual check]"
 ---

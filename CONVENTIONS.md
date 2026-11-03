@@ -34,7 +34,7 @@ Four statuses, in order. The status lives only in the board column.
 |---|---|---|
 | Backlog | `/issue` | Described, not started |
 | In Progress | `/work` | Being worked on |
-| Review | `/work` | Tests green, PR open, waiting for the user's manual check |
+| Review | `/work` | Reviewed, tests and lint green, PR open, waiting for the user's manual check |
 | Done | `/done` | User checked it; merged and closed |
 
 Several issues may sit in In Progress; only the checked-out branch is actively worked on.
