@@ -82,7 +82,7 @@ Run the gate once more on the final commit. Green → step 7. Red after the work
 2. Post the hand-over comment on the issue, in the Kanban language:
    - *Changes*: what behaves differently now, key files, commits.
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
-   - *Manual check*: numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result.
+   - *Manual check*: numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*.
    - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review claude-fable-5-1`; a fallback with its reason, a reduced review depth with its warning.
    - *Notes*: assumptions made, the reviewers' suggestions, and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 3. Set the status to Review.
