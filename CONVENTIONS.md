@@ -46,7 +46,18 @@ Several issues may sit in In Progress; only the checked-out branch is actively w
   - `feature`: new or changed behavior.
   - `chore`: no behavior change (refactoring, dependencies, config, CI, docs).
 - **Area**, zero or more: `area/<topic>`, e.g. `area/ui-ux`. Use the repo's existing area labels. When none fits, propose a new one and create it only after the user agrees.
+- **Risk override**, optional: `risk/high` or `risk/low`, set only by the user. See Risk.
 - **Milestone**, optional: set only when the user names one. A missing milestone is created only after the user agrees.
+
+## Risk
+
+Every issue gets a risk class in `/work`; it decides which models review.
+
+1. A `risk/high` or `risk/low` label on the issue wins.
+2. Otherwise the planner classifies:
+   - **high**: the change touches security, authentication, permissions, or secrets; the data model, migrations, or possible data loss; concurrency, caching, or transactions; a public interface others use (API, CLI, file format); or the diff is large (about 10+ files or several modules).
+   - **low**: a `chore` or a small mechanical change with no behavior change.
+   - **normal**: everything else.
 
 ## Language
 

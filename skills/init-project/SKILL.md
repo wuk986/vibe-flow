@@ -20,7 +20,7 @@ Read `~/.claude/vibe-flow/CONVENTIONS.md` first: it defines the CLAUDE.md sectio
    - No test setup → propose the standard minimal framework for the language with one smoke test; set it up after the user agrees. `/work` needs a green suite to reach Review.
    - No linter → ask whether to set one up or record `none`.
 6. **Board**: set up the board with the adapter (Set up board). Done when it has exactly the four statuses and is linked to the repo.
-7. **Labels**: create `bug`, `feature`, `chore`. Propose 3–6 `area/` labels derived from the codebase's structure; create what the user confirms. Existing labels stay.
+7. **Labels**: create `bug`, `feature`, `chore`, `risk/high`, `risk/low`. Propose 3–6 `area/` labels derived from the codebase's structure; create what the user confirms. Existing labels stay.
 8. **graphify**: when `graphify-out/` is missing, ask whether to set up graphify for this project. On yes, invoke the `graphify` skill to build the graph and add its CLAUDE.md rules. When `graphify` is not on PATH, tell the user to install it (`uv tool install graphifyy`) and continue.
 9. **CLAUDE.md section**: write the `## vibe-flow` section exactly as defined in CONVENTIONS.md, replacing an existing one. Done when CLAUDE.md contains exactly one such section with every field filled.
 10. **Commit**: show a summary of what changed and ask whether to commit (`chore: set up vibe-flow`, in the Commit language) and push.

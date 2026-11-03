@@ -1,15 +1,28 @@
 ---
 name: work
-description: Work a kanban issue end to end - branch, test-first implementation, self-review, green suite, PR, move to Review.
+description: Work a kanban issue end to end - Opus plans, Sonnet/Haiku builds test-first, Opus/Fable reviews, green gate, PR, move to Review.
 disable-model-invocation: true
 argument-hint: "[#n] [feedback from manual check]"
 ---
 
 # work
 
-Takes one issue from Backlog (or back from Review with feedback) to Review: tests green, PR open, everything documented on the issue. Work autonomously; stop for the user only where a step says so.
+Takes one issue from Backlog (or back from Review with feedback) to Review: gate green, PR open, everything documented on the issue. You are the **orchestrator**: you talk to the board and the user and steer the subagents; planning, building, and reviewing run in subagents on the model this skill assigns. Work autonomously; stop for the user only where a step says so.
 
-Read `~/.claude/vibe-flow/PRINCIPLES.md`; it governs every change below.
+## Subagents
+
+Spawn each role as a `general-purpose` subagent with the `model` named here. Its prompt starts with `Read ~/.claude/vibe-flow/roles/<role>.md and follow it.`, followed by the inputs that file lists. Continue a running subagent with SendMessage instead of spawning a new one.
+
+| Role | Model |
+|---|---|
+| planner | `opus` |
+| worker | from the plan: `sonnet` or `haiku` |
+| reviewer | from the review table in step 5 |
+| helper | `haiku` |
+
+A subagent's report is a claim. The gate verdict that counts is the helper's.
+
+**Escalation**: once per step, run the worker or reviewer one level higher (haiku → sonnet → opus) when the gate is red twice for the same `Reason`, when the same finding ID appears in two reviews in a row, or when it reports `BLOCKED`. A `BLOCKED` that needs information only the user has → ask the user instead. Fable is never an escalation level.
 
 ## 1. Pick the issue
 
@@ -27,27 +40,40 @@ Read `~/.claude/vibe-flow/PRINCIPLES.md`; it governs every change below.
 
 ## 3. Plan
 
-1. Map every acceptance criterion (on resume: every feedback point) to the test that proves it and the change that satisfies it.
-2. An ambiguity that would change the result → ask the user and wait. Everything else: decide, and record the decision as an assumption.
-3. Post the plan as an issue comment with three parts: *Assumptions*, *Approach* (short steps, each with its check), *Affected areas* (files or modules). On resume, the plan covers only the feedback.
+1. Spawn the planner.
+2. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers.
+3. Post the plan as an issue comment in the Kanban language: risk class with reason, worker model, *Assumptions*, *Approach*, *Affected areas*. On resume, the plan covers only the feedback.
 
-## 4. Implement test-first
+## 4. Build
 
-By the issue's type label:
+1. Spawn the worker with the plan.
+2. Run the **gate**: the helper's `gate`. `RED` → continue the worker with the helper's report, then gate again.
+3. Gate green → run the helper's `scope`; its report goes to every reviewer.
 
-- `bug`: write a regression test that reproduces the bug and watch it go **red** for the right reason. Then fix until it is green.
-- `feature`: write the tests for the acceptance criteria through the public interface and watch them go red. Then implement until they are green.
-- `chore`: run the full suite first to record the baseline. The existing suite is the guard; the behavior must stay identical.
+## 5. Review
 
-Commit in small steps: `#<n>: <imperative summary>` in the Commit language.
+| Risk | Intermediate review | Final review R1 and R2 |
+|---|---|---|
+| low | none | `sonnet`, mode `light` |
+| normal | `sonnet`, mode `light` | `opus`, mode `full` |
+| high | `opus`, mode `light` | `fable`, mode `full` |
 
-## 5. Self-review
+1. **Intermediate review** → the worker fixes its must-fix findings → gate.
+2. **Final review R1** → the worker fixes its must-fix findings → gate.
+3. **R2**: the same model as R1 in mode `recheck`, given only the open findings. Clean → step 6.
+4. Must-fix findings still open after R2 → **stop**: post exactly those findings (ID, `file:line`, problem) as one issue comment, leave the status at In Progress, and lay them out for the user. A third review round does not exist.
 
-Read the whole diff against the default branch (`git diff <default>...HEAD`) and check it against every section of PRINCIPLES.md: lines that do not trace back to the issue, duplicates of code that already exists, speculative code, leftovers your change orphaned, style that differs from its surroundings. Fix and commit what you find. Done when every section is checked and nothing is open.
+Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict on a low-risk issue raises it to normal; continue with that row. After each review `git status` must be clean; otherwise stop and report what the reviewer changed.
+
+**Fable**: a final review on `fable` counts as unavailable when the call fails or the `REVIEWER:` line names another model. Retry a limit or overload error once; an access error not at all. Fable is tried anew on every run, so a plan upgrade takes effect at once. Unavailable →
+
+1. Reviewer on `opus` with effort `high`, mode `full`, and in parallel an independent reviewer on `sonnet`, mode `focus`.
+2. Merge both finding lists and check each finding against the code yourself; drop the ones that do not hold before the worker sees them.
+3. Opus unavailable too → reviewer on `sonnet`, mode `full`, and the hand-over warns of reduced review depth.
 
 ## 6. Verify
 
-Run the Test and the Lint command from the CLAUDE.md section. Both green → continue. Red → fix and run again. A failure you cannot resolve, or one that already fails on the default branch → stop, report it to the user, and leave the status at In Progress.
+Run the gate once more on the final commit. Green → step 7. Red after the worker's fixes, or a failure that already exists on the default branch → stop, report it to the user, and leave the status at In Progress.
 
 ## 7. Hand over
 
@@ -56,6 +82,7 @@ Run the Test and the Lint command from the CLAUDE.md section. Both green → con
    - *Changes*: what behaves differently now, key files, commits.
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
    - *Manual check*: numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result.
-   - *Notes*: assumptions made and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
+   - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review claude-fable-5-1`; a fallback with its reason, a reduced review depth with its warning.
+   - *Notes*: assumptions made, the reviewers' suggestions, and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 3. Set the status to Review.
 4. Tell the user: the PR link, the manual check steps, and the next move: `/done <n>` when the check passes, `/work <n> <feedback>` when it does not.
