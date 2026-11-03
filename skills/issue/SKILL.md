@@ -15,10 +15,11 @@ Turns the user's description into a well-formed issue on the board. The descript
 2. **Understand**: read the description. Read only as much code as you need to make the acceptance criteria concrete. Search open issues for duplicates (adapter: Find duplicates); show a likely duplicate and ask before going on.
 3. **Draft**, in the Kanban language:
    - **Title**: imperative, under 70 characters.
-   - **Body** with three sections:
+   - **Body** with these sections:
      - *Goal*: one or two sentences on what changes for whom and why.
      - *Acceptance criteria*: a checklist; each item observable and checkable, since `/work` turns each one into a test.
      - *Out of scope*: what this issue deliberately leaves out; omit the section when nothing is.
+     - *Assets*: repo paths of the mockups or other files the user provides for this issue; omit the section when there are none.
    - **Type**: exactly one of `bug`, `feature`, `chore`.
    - **Area**: matching `area/` labels from the repo's existing set; a missing one only as a proposal.
    - **Milestone**: only when the user named one.

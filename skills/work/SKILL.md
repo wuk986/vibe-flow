@@ -32,11 +32,12 @@ A subagent's report is a claim. The gate verdict that counts is the helper's.
 
 ## 2. Prepare
 
-1. `git status` shows uncommitted changes → stop, show them, and ask the user how to proceed. Their changes are theirs to stash, commit, or discard.
+1. `git status` shows uncommitted changes other than the issue's *Assets* → stop, show them, and ask the user how to proceed. Their changes are theirs to stash, commit, or discard.
 2. Other issues in In Progress → mention them in one line and continue.
 3. Branch `<n>-<slug>` exists locally or on the remote → **resume**: check it out and pull. Otherwise create it from the freshly pulled default branch.
-4. Feedback given (the argument after the number) → post it as an issue comment headed *Feedback from manual check*.
-5. Set the status to In Progress.
+4. The issue lists *Assets* that are not committed yet → commit them on the branch: `#<n>: Add assets`. A listed file that is missing → stop and ask the user.
+5. Feedback given (the argument after the number) → post it as an issue comment headed *Feedback from manual check*.
+6. Set the status to In Progress.
 
 ## 3. Plan
 

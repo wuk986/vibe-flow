@@ -37,5 +37,6 @@ curl -sS -H "Authorization: token $FORGEJO_TOKEN" -H "Content-Type: application/
 | Add issue | Issue page → sidebar "Projects" → select the board. |
 | Set status | Board URL → drag card `#<n>` into the column. |
 | List issues in a status | Read the column from the board page. |
+| Remove from board | Issue page → sidebar "Projects" → clear the selection. |
 
 When Claude in Chrome is not connected, or a board step fails, tell the user the exact manual step (e.g. "move #12 to Review") and continue with the rest of the skill.

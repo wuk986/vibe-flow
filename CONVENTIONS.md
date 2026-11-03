@@ -24,7 +24,11 @@ The single place for per-project settings. `/init-project` writes it in exactly 
 - Kanban language: <language>
 - Commit language: <language>
 - Principles: follow ~/.claude/vibe-flow/PRINCIPLES.md for every code change.
+- Board rule: only `/issue`, `/work`, and `/done` change issues, statuses, and PRs; for anything else on the board, ask the user first.
+- User files: ask before deleting or moving files the user placed in the project, even when they are committed.
 ```
+
+The two rule lines sit here rather than further down because this section is always loaded, also outside the skills.
 
 ## Board
 
@@ -38,6 +42,12 @@ Four statuses, in order. The status lives only in the board column.
 | Done | `/done` | User checked it; merged and closed |
 
 Several issues may sit in In Progress; only the checked-out branch is actively worked on.
+
+A withdrawn issue is closed without a merge and removed from the board (adapter: Remove from board); no status fits it.
+
+## Assets
+
+Files that belong to an issue, such as mockups and screenshots, are listed in the issue body under *Assets* with their repo path. `/work` commits them on the issue branch, so they land with the issue's PR.
 
 ## Labels
 

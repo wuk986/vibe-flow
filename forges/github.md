@@ -9,6 +9,7 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | Set up board | `board init "<repo name>"` → prints `<P>`; safe to re-run |
 | Set status | `board status <P> <n> "<Status>"` (adds the issue to the board if needed) |
 | List issues in a status | `board list <P> "<Status>"` |
+| Remove from board | `board remove <P> <n>` (the issue itself stays) |
 | Create issue | `gh issue create --title "<title>" --body-file <file> --label <type> [--label area/<x>] [--milestone "<name>"]` → prints the URL |
 | Find duplicates | `gh issue list --state open --search "<keywords>"` |
 | Read issue | `gh issue view <n> --comments` (`--json state,labels,title` for fields) |

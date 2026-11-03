@@ -3,6 +3,7 @@
 #   github-board.sh init <title>                  find or create the board, link the repo, print its number
 #   github-board.sh status <project> <issue> <status>  add the issue to the board and set its column
 #   github-board.sh list <project> <status>       print "<number>\t<title>" of issues in that column
+#   github-board.sh remove <project> <issue>      take the issue's card off the board
 # Runs inside the project's git checkout; needs gh with the "project" scope.
 set -euo pipefail
 
@@ -62,8 +63,15 @@ case "${1:-}" in
     gh project item-list "$project" --owner "$owner" --format json --limit 500 \
       -q ".items[] | select(.status==\"$status\" and .content.type==\"Issue\") | \"\(.content.number)\t\(.content.title)\""
     ;;
+  remove)
+    project=$2 issue=$3
+    url=$(gh issue view "$issue" --json url -q .url)
+    item_id=$(gh project item-add "$project" --owner "$owner" --url "$url" --format json -q .id)
+    gh project item-delete "$project" --owner "$owner" --id "$item_id" >/dev/null
+    echo "#$issue removed from board"
+    ;;
   *)
-    sed -n '2,6p' "$0" >&2
+    sed -n '2,7p' "$0" >&2
     exit 2
     ;;
 esac
