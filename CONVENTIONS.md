@@ -23,12 +23,10 @@ The single place for per-project settings. `/init-project` writes it in exactly 
 - Lint: `<command>` | none
 - Kanban language: <language>
 - Commit language: <language>
-- Principles: follow ~/.claude/vibe-flow/PRINCIPLES.md for every code change.
-- Board rule: only `/issue`, `/work`, and `/done` change issues, statuses, and PRs; for anything else on the board, ask the user first.
-- User files: ask before deleting or moving files the user placed in the project, even when they are committed.
+- Rules: @~/.claude/vibe-flow/RULES.md
 ```
 
-The two rule lines sit here rather than further down because this section is always loaded, also outside the skills.
+The `Rules` line imports `RULES.md`, so the rules are loaded outside the skills too and a rule change needs no commit in the project. Claude Code loads a file from outside the project only after the user approves the import once per project; without that approval the rules are silently missing.
 
 ## Board
 
