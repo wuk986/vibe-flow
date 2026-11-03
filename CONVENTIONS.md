@@ -44,7 +44,7 @@ A withdrawn issue is closed without a merge and removed from the board (adapter:
 
 ## Assets
 
-Files that belong to an issue, such as mockups and screenshots, are listed in the issue body under *Assets* with their repo path. `/work` commits them on the issue branch, so they land with the issue's PR.
+Files that belong to an issue, such as mockups and screenshots, are listed in the issue body under *Assets* with their repo path. `/work` commits them on the issue branch, so they land with the issue's PR. List only final files that an acceptance criterion or a reviewer needs. Drafts stay out of the repo; large raw files such as PSDs or videos stay out too and are linked in the issue.
 
 ## Labels
 
