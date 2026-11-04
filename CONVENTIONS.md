@@ -62,7 +62,7 @@ Every issue gets a risk class in `/work`; it decides which models review.
 
 1. A `risk/high` or `risk/low` label on the issue wins.
 2. Otherwise the planner classifies:
-   - **high**: the change touches security, authentication, permissions, or secrets; the data model, migrations, or possible data loss; concurrency, caching, or transactions; a public interface others use (API, CLI, file format); or the diff is large (about 10+ files or several modules).
+   - **high**: the change touches security, authentication, permissions, or secrets; the data model, migrations, or possible data loss; concurrency, caching, or transactions; a change that can break existing users of a public interface (API, CLI, file format), while a purely additive one does not count; or the diff is large (about 10+ files or several modules).
    - **low**: a `chore` or a small mechanical change with no behavior change.
    - **normal**: everything else.
 
