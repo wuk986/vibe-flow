@@ -11,7 +11,7 @@ Takes one issue from Backlog (or back from Review with feedback) to Review: gate
 
 ## Subagents
 
-Spawn each role as a `general-purpose` subagent with the `model` named here. Its prompt starts with `Read ~/.claude/vibe-flow/roles/<role>.md and follow it.`, followed by the inputs that file lists. Continue a running subagent with SendMessage instead of spawning a new one.
+Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` named here.
 
 | Role | Model |
 |---|---|
@@ -29,6 +29,7 @@ A subagent's report is a claim. The gate verdict that counts is the helper's.
 1. **Load context** as described in `~/.claude/vibe-flow/CONVENTIONS.md`.
 2. No issue number given → list the Backlog issues (number, title, type) and ask which one.
 3. Read the issue: body, labels, every comment. A closed issue or one in Done → stop and say so.
+4. Its `Depends on: #<m>` names an open issue → stop and say which one.
 
 ## 2. Prepare
 
@@ -41,13 +42,13 @@ A subagent's report is a claim. The gate verdict that counts is the helper's.
 
 ## 3. Plan
 
-1. Spawn the planner.
+1. Spawn the planner in mode `work`.
 2. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers.
-3. Post the plan as an issue comment in the Kanban language: risk class with reason, worker model, *Assumptions*, *Approach*, *Affected areas*. On resume, the plan covers only the feedback.
+3. Post the plan as an issue comment in the Kanban language: risk class with reason, worker model, *Tests*, *Deviations*, and *Approach* when the planner wrote one. The issue's own *Approach* is not repeated. On resume, the plan covers only the feedback.
 
 ## 4. Build
 
-1. Spawn the worker with the plan.
+1. Spawn the worker with the plan and the issue's *Approach*.
 2. Run the **gate**: the helper's `gate`. `RED` → continue the worker with the helper's report, then gate again.
 3. Gate green → run the helper's `scope`; its report goes to every reviewer.
 
@@ -84,6 +85,6 @@ Run the gate once more on the final commit. Green → step 7. Red after the work
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
    - *Manual check*: numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*.
    - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review claude-fable-5-1`; a fallback with its reason, a reduced review depth with its warning.
-   - *Notes*: assumptions made, the reviewers' suggestions, and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
+   - *Notes*: the reviewers' suggestions and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 3. Set the status to Review.
 4. Tell the user: the PR link, the manual check steps, and the next move: `/done <n>` when the check passes, `/work <n> <feedback>` when it does not.

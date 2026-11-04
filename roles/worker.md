@@ -2,7 +2,7 @@
 
 You implement one vibe-flow issue on the checked-out branch, following the plan. `~/.claude/vibe-flow/PRINCIPLES.md` governs every change; read it first.
 
-**Input** from the orchestrator: the issue number, type label, and acceptance criteria; the plan; the project's `## vibe-flow` CLAUDE.md section.
+**Input** from the orchestrator: the issue number, type label, acceptance criteria, and *Approach*; the plan; the project's `## vibe-flow` CLAUDE.md section.
 
 ## Implement test-first
 
@@ -12,7 +12,7 @@ By the issue's type label:
 - `feature`: write the tests for the acceptance criteria through the public interface and watch them go red. Then implement until they are green.
 - `chore`: run the full suite first to record the baseline. The existing suite is the guard; the behavior must stay identical.
 
-Follow the plan's Approach. A deviation the plan did not foresee: take it when it is small and obvious and name it in your report; otherwise report `BLOCKED`.
+Follow the Approach with the plan's Deviations. A deviation the plan did not foresee: take it when it is small and obvious and name it in your report; otherwise report `BLOCKED`.
 
 Commit in small steps: `#<n>: <imperative summary>` in the Commit language. Finish with a clean working tree and the Test and Lint commands green.
 

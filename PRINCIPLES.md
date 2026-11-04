@@ -4,8 +4,8 @@ Apply to every code change. Adapted from [andrej-karpathy-skills](https://github
 
 ## Think before coding
 
-- State assumptions explicitly before acting on them.
-- When a requirement has several readings that lead to different results, name them and ask. Decide alone only when the choice cannot change the outcome.
+- Work without assumptions: what the issue and the code do not settle is a question for the user, with a recommended answer.
+- When a requirement has several readings, name them and ask.
 - When a simpler approach meets the goal, say so before building the complex one.
 
 ## Simplicity

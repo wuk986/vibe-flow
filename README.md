@@ -11,7 +11,7 @@ A kanban-driven vibe coding workflow for Claude Code, usable in any project. The
 | Command | What it does |
 |---|---|
 | `/init-project` | CLAUDE.md (via `/init` if missing), board with 4 columns, labels, test/lint commands, languages, optional graphify |
-| `/issue <description>` | Issue with goal, acceptance criteria, out of scope, assets, type and area labels; added to Backlog after your OK |
+| `/issue <description>` | Opus analysis with questions until nothing is open; issue with goal, acceptance criteria, out of scope, approach, risks, assets, labels; added to Backlog after your OK |
 | `/work [#n] [feedback]` | Branch, plan comment, test-first implementation, risk-based review, green tests + lint, PR, hand-over comment, Review |
 | `/done [#n]` | After your manual check: squash-merge, close the issue, Done |
 
@@ -27,7 +27,7 @@ A kanban-driven vibe coding workflow for Claude Code, usable in any project. The
 
 ## Models in /work
 
-`/work` orchestrates subagents: the planner runs on Opus, the worker on Sonnet (Haiku for mechanical changes), mechanical checks on Haiku, and the reviewers on Sonnet, Opus, or Fable depending on the issue's risk class. Stuck steps escalate one level; after two final review rounds with open findings the run stops and you decide. The full model table and fallbacks are in [skills/work/SKILL.md](skills/work/SKILL.md).
+`/issue` plans with the Opus planner; `/work` orchestrates subagents: the planner runs on Opus and checks the issue's approach against the current code, the worker on Sonnet (Haiku for mechanical changes), mechanical checks on Haiku, and the reviewers on Sonnet, Opus, or Fable depending on the issue's risk class. Stuck steps escalate one level; after two final review rounds with open findings the run stops and you decide. The full model table and fallbacks are in [skills/work/SKILL.md](skills/work/SKILL.md).
 
 ## Install
 

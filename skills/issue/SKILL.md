@@ -1,28 +1,23 @@
 ---
 name: issue
-description: Create a kanban issue from the user's description, with goal, acceptance criteria, and labels, in Backlog.
+description: Plan a kanban issue from the user's description - Opus analysis, open questions, goal, criteria, approach, risks - and create it in Backlog.
 disable-model-invocation: true
 argument-hint: <description>
 ---
 
 # issue
 
-Turns the user's description into a well-formed issue on the board. The description is the user's; your job is to make it checkable.
+Turns the user's description into a planned issue on the board. The description is the user's; your job is to make it checkable and to surface problems and open points before any work starts.
 
 ## Steps
 
 1. **Load context** as described in `~/.claude/vibe-flow/CONVENTIONS.md`.
-2. **Understand**: read the description. Read only as much code as you need to make the acceptance criteria concrete. Search open issues for duplicates (adapter: Find duplicates); show a likely duplicate and ask before going on.
-3. **Draft**, in the Kanban language:
-   - **Title**: imperative, under 70 characters.
-   - **Body** with these sections:
-     - *Goal*: one or two sentences on what changes for whom and why.
-     - *Acceptance criteria*: a checklist; each item observable and checkable, since `/work` turns each one into a test.
-     - *Out of scope*: what this issue deliberately leaves out; omit the section when nothing is.
-     - *Assets*: repo paths of the mockups or other files the user provides for this issue; omit the section when there are none.
-   - **Type**: exactly one of `bug`, `feature`, `chore`.
-   - **Area**: matching `area/` labels from the repo's existing set; a missing one only as a proposal.
+2. **Duplicates**: search open issues (adapter: Find duplicates); show a likely duplicate and ask before going on.
+3. **Analyze**: spawn the planner (see Subagents in CONVENTIONS.md) on `opus` in mode `issue`. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers, until it returns its analysis.
+4. **Draft**, in the Kanban language, from the analysis:
+   - **Title**, **Type**, **Area**.
+   - **Body**: *Goal*, *Acceptance criteria*, *Out of scope*, *Approach*, *Risks*; omit a section that is empty. Add *Assets* with the repo paths of files the user provides, and `Depends on: #<m>` when the issue needs another one first.
    - **Milestone**: only when the user named one.
-4. **Clarify**: ask at most three questions, and only about gaps that would change the acceptance criteria. Then show the full draft with labels and wait for the user's OK or corrections.
-5. **Create**: on OK, create any new area label or milestone the user approved, then the issue (adapter: Create issue), then set its status to Backlog.
-6. **Report** the issue number and URL.
+5. **Show** the full draft with labels and the risk estimate; the estimate is for the user and is not stored. A proposed split comes with it. Wait for the user's OK or corrections.
+6. **Create**: on OK, create any new area label or milestone the user approved, then the issue or issues in order (adapter: Create issue), then set each status to Backlog.
+7. **Report** the issue numbers and URLs.

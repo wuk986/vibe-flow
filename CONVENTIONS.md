@@ -72,6 +72,10 @@ Every issue gets a risk class in `/work`; it decides which models review.
 - Commit messages and branch slugs: **Commit language**.
 - Code, identifiers, and code comments: follow the existing codebase.
 
+## Subagents
+
+Spawn a role as a `general-purpose` subagent with an explicit `model`. Its prompt starts with `Read ~/.claude/vibe-flow/roles/<role>.md and follow it.`, followed by the inputs that file lists. Continue a running subagent with SendMessage instead of spawning a new one.
+
 ## Git
 
 - Branch per issue: `<n>-<slug>`, e.g. `12-login-timeout`.
