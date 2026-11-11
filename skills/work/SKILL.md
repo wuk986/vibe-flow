@@ -7,7 +7,7 @@ argument-hint: "[#n] [feedback from manual check]"
 
 # work
 
-Takes one issue from Backlog (or back from Review with feedback) to Review: gate green, PR open, everything documented on the issue. You are the **orchestrator**: you talk to the board and the user and steer the subagents; planning, building, and reviewing run in subagents on the model this skill assigns. Work autonomously; stop for the user only where a step says so.
+Takes one issue from Backlog (or back from Review with feedback) to Review: gate green, PR open, everything documented on the issue. You are the **orchestrator**: you talk to the board and the user and steer the subagents; planning, building, and reviewing run in subagents on the model this skill assigns. Work autonomously; stop for the user only where a step says so. Every run ends with a verdict (step 8), also a run that stops early.
 
 ## Subagents
 
@@ -83,7 +83,7 @@ Otherwise:
 1. **Intermediate review**, high risk only → the worker fixes its must-fix findings → gate.
 2. **Final review R1**. Clean → step 6. Must-fix findings → the worker fixes them → gate.
 3. **R2**: the same model as R1 in mode `recheck`, given only the open findings. Clean → step 6.
-4. Must-fix findings still open after R2 → **stop**: post exactly those findings (ID, `file:line`, problem) as one issue comment, leave the status at In Progress, and lay them out for the user. A third review round does not exist.
+4. Must-fix findings still open after R2 → **stop**: post exactly those findings (ID, `file:line`, problem) as one issue comment, leave the status at In Progress, lay them out for the user, and end with the verdict ❌ (step 8). A third review round does not exist.
 
 Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict on a low-risk issue raises it to normal: set `risk/normal`, post the reason as an issue comment, and start the final review again with the normal row. After each review `git status` in `<wt>` must be clean; otherwise stop and report what the reviewer changed.
 
@@ -93,18 +93,31 @@ Only must-fix findings go to the worker; collect the suggestions for the hand-ov
 2. Merge both finding lists and check each finding against the code yourself; drop the ones that do not hold before the worker sees them.
 3. Opus unavailable too → reviewer on `sonnet`, mode `full`, and the hand-over warns of reduced review depth.
 
-## 6. Verify
+## 6. Update and verify
 
-Run the gate once more on the final commit, unless the last green gate already ran on that same commit. Green → step 7. Red after the worker's fixes, or a failure that already exists on the default branch → stop, report it to the user, and leave the status at In Progress.
+1. Fetch, then merge the current default branch into the issue branch in `<wt>`: `git merge origin/<default>`. Already up to date → nothing to do. A conflict → `git merge --abort`, note the conflicting files, leave the status at In Progress, and go to step 8 with ❌; resolving it is the user's call.
+2. Run the gate on the final commit, unless the last green gate already ran on that same commit. Green → step 7. Red after the worker's fixes, or a failure that already exists on the default branch → leave the status at In Progress and go to step 8 with ❌.
 
 ## 7. Hand over
 
 1. Push the branch from `<wt>`: `git push -u origin <n>-<slug>`. No PR yet → create one: title = issue title, body = `Closes #<n>` plus one sentence, in the Kanban language.
-2. Post the hand-over comment on the issue, in the Kanban language:
+2. **Checks**: wait for the PR's checks (adapter: PR checks), polling about every 30 seconds for at most 10 minutes. No check has shown up after the first minute → the repo has no CI for this PR. Note the result: passed, failed (with the failing check names), still pending after 10 minutes, or no CI. Read the PR's mergeability with the same call.
+3. Post the hand-over comment on the issue, in the Kanban language. Its first line is the verdict from step 8, then:
    - *Changes*: what behaves differently now, key files, commits.
-   - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
+   - *Tests*: new or changed tests and what each one guards; suite and lint results with counts; the checks result.
    - *Manual check*: the worktree path `<wt>` to run the check in, then numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*, and say what the user has to look at for it, e.g. a visual check of the rendered page.
    - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review <the reviewer's REVIEWER: model ID>`, or `fast path · build haiku · review <model ID>`; a raised risk class, a fallback with its reason, a reduced review depth with its warning.
    - *Notes*: the reviewers' suggestions and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
-3. Set the status to Review.
-4. Tell the user: the PR link, the worktree path, the manual check steps, and the next move: `/vibe-flow:done <n>` when the check passes, `/vibe-flow:work <n> <feedback>` when it does not.
+4. Verdict ✅ or ⏳ → set the status to Review. Verdict ❌ → leave it at In Progress.
+
+## 8. Verdict
+
+Decide exactly one verdict from what this run established, and write it in the Kanban language as the first line of the hand-over comment (or of the stop comment) and of your last message to the user:
+
+| Verdict | When | Line |
+|---|---|---|
+| ✅ | Gate green on the final commit, no open must-fix finding, branch up to date with the default branch, PR open and mergeable, checks passed or no CI, and every manual check step that could run gave its expected result | `✅ Ready for /vibe-flow:done <n> after your manual check: <the steps marked not run, or "all steps passed">` |
+| ⏳ | Everything as for ✅, except that checks are still pending after 10 minutes | `⏳ Almost ready: checks still running (<names>). /vibe-flow:done <n> checks them again before merging.` |
+| ❌ | Anything else: a red gate, must-fix findings after R2, a merge conflict, a failed check, a PR that is not mergeable, a manual check step with an unexpected result, or a `BLOCKED` that only the user can resolve | `❌ Not ready: <each reason in one line>. Next: <the concrete next move>` |
+
+The next move for ❌ names what fits, e.g. `/vibe-flow:work <n> <feedback>` after the user decided on the findings, or resolving the conflict in `<wt>` and running `/vibe-flow:work <n>` again. After the verdict, tell the user the PR link and the worktree path. Never run `/vibe-flow:done` yourself, whatever the verdict.
