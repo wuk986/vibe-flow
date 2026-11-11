@@ -1,6 +1,6 @@
 # vibe-flow
 
-A kanban-driven vibe coding workflow for Claude Code, usable in any project. The board (GitHub Projects or Forgejo) is the source of truth: the issue, the plan, the work done, and the manual test instructions all live there.
+A kanban-driven vibe coding workflow for Claude Code, usable in any project. The forge is the source of truth: the issue, the plan, the work done, and the manual test instructions all live there, and the status lives in a GitHub Projects board or, on Forgejo and Gitea, in the issues' status labels.
 
 ```
 /vibe-flow:issue → Backlog → /vibe-flow:work → In Progress → Review → (manual check) → /vibe-flow:done → Done
@@ -11,9 +11,9 @@ A kanban-driven vibe coding workflow for Claude Code, usable in any project. The
 | Command | What it does |
 |---|---|
 | `/vibe-flow:setup` | CLAUDE.md (via `/init` if missing), board with 4 columns, labels, test/lint commands, languages, optional graphify |
-| `/vibe-flow:issue <description>` | Planner analysis with questions until nothing is open; issue with goal, acceptance criteria, out of scope, approach, risks, assets, labels; added to Backlog after your OK |
-| `/vibe-flow:work [#n] [feedback]` | Branch, plan comment, test-first implementation, risk-based review, green tests + lint, PR, hand-over comment, Review |
-| `/vibe-flow:done [#n]` | After your manual check: squash-merge, close the issue, Done |
+| `/vibe-flow:issue <description>` | Planner analysis with questions until nothing is open; issue with goal, acceptance criteria, out of scope, approach, risks, assets, labels; added to Backlog with its risk label after your OK |
+| `/vibe-flow:work [#n] [feedback]` | Worktree and branch, plan comment (or the fast path for low-risk issues), test-first implementation, risk-based review, green tests + lint, PR, hand-over comment, Review |
+| `/vibe-flow:done [#n]` | After your manual check: squash-merge, close the issue, Done, remove the worktree |
 
 ## Install
 
@@ -34,9 +34,13 @@ Then run `/vibe-flow:setup` once in each project. The plugin updates itself; re-
 
 `/vibe-flow:setup` lists the ones it still finds. The project's `## vibe-flow` CLAUDE.md section stays as it is. The commands now carry the `vibe-flow:` prefix, and `/init-project` is now `/vibe-flow:setup`.
 
+## Worktrees
+
+Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<n>-<slug>`, so several issues can be in progress at once and your main checkout is never switched. Run the manual check in that folder; the hand-over comment names it.
+
 ## Models
 
-`/vibe-flow:issue` and `/vibe-flow:work` run planning, building, and review in subagents on models matched to the issue's risk class; stuck steps escalate one level, and after two final review rounds with open findings the run stops and you decide. The model assignment lives in one place: [skills/work/SKILL.md](skills/work/SKILL.md).
+`/vibe-flow:issue` and `/vibe-flow:work` run planning, building, and review in subagents on models matched to the issue's risk class, which `/vibe-flow:issue` stores as a `risk/` label and `/vibe-flow:work` may only raise. A low-risk issue with an *Approach* skips planning in `/vibe-flow:work` and gets a single light review; stuck steps escalate one level, and after two final review rounds with open findings the run stops and you decide. The model assignment lives in one place: [skills/work/SKILL.md](skills/work/SKILL.md).
 
 ## Files
 
@@ -44,7 +48,7 @@ Then run `/vibe-flow:setup` once in each project. The plugin updates itself; re-
 - [rules/vibe-flow.md](rules/vibe-flow.md): the rules loaded into every session of a vibe-flow project, through the hook in [hooks/](hooks/)
 - [CONVENTIONS.md](CONVENTIONS.md): statuses, assets, labels, risk classes, languages, the CLAUDE.md section
 - [REVIEW.md](REVIEW.md): the review checklist
-- [forges/](forges/): adapters for GitHub (`gh`) and Forgejo (REST, plus Claude in Chrome for the board)
+- [forges/](forges/): adapters for GitHub (`gh`) and Forgejo/Gitea (REST, plus Claude in Chrome for an optional board view)
 - [skills/](skills/): the four skills
 - [agents/](agents/): the subagent roles `/vibe-flow:work` orchestrates; planner, reviewer, and helper cannot edit files
 
@@ -52,5 +56,5 @@ Then run `/vibe-flow:setup` once in each project. The plugin updates itself; re-
 
 - **Claude Code** with plugin support; on Windows, Git Bash (the rules hook and the GitHub board script are Bash)
 - **GitHub:** `gh`, logged in, with the `project` scope (`gh auth refresh -s project`)
-- **Forgejo:** environment variable `FORGEJO_TOKEN`, `curl`; Claude in Chrome for the board
+- **Forgejo or Gitea:** environment variable `FORGEJO_TOKEN` or `GITEA_TOKEN`, `curl`. The status lives in `status/` labels, since vibe-flow uses no board API there; Claude in Chrome is only needed to keep an optional board view up to date
 - **Optional:** [graphify](https://pypi.org/project/graphifyy/) (`uv tool install graphifyy`)

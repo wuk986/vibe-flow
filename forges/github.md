@@ -10,16 +10,17 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | Set status | `board status <P> <n> "<Status>"` (adds the issue to the board if needed) |
 | List issues in a status | `board list <P> "<Status>"` |
 | Remove from board | `board remove <P> <n>` (the issue itself stays) |
-| Create issue | `gh issue create --title "<title>" --body-file <file> --label <type> [--label area/<x>] [--milestone "<name>"]` → prints the URL |
+| Create issue | `gh issue create --title "<title>" --body-file <file> --label <type> --label risk/<class> [--label area/<x>] [--milestone "<name>"]` → prints the URL. The issue is not on the board yet; Set status puts it there. |
 | Find duplicates | `gh issue list --state open --search "<keywords>"` |
 | Read issue | `gh issue view <n> --comments` (`--json state,labels,title` for fields) |
 | Comment | `gh issue comment <n> --body-file <file>` |
 | List labels | `gh label list --limit 200` |
-| Create label | `gh label create "<name>" --color <hex> --description "<text>" --force` |
+| Set risk label | `gh issue edit <n> --remove-label risk/<old> --add-label risk/<new>` (without `--remove-label` when the issue has none) |
+| Create label | `gh label create "<name>" --color <hex> --description "<text>" --force`; on an existing label this updates color and description |
 | List milestones | `gh api "repos/{owner}/{repo}/milestones?state=open" -q '.[].title'` |
 | Create milestone | `gh api repos/{owner}/{repo}/milestones -f title="<name>"` |
 | Create repo | `gh repo create <name> --private --source . --push` |
 | Find PR of branch | `gh pr view <branch> --json number,url,state,mergeable,statusCheckRollup` |
 | Create PR | `gh pr create --head <branch> --title "<title>" --body-file <file>` |
-| Squash-merge | `gh pr merge <pr> --squash --delete-branch --subject "<commit message>"` |
+| Squash-merge | `gh pr merge <pr> --squash --subject "<commit message>"`, then delete the remote branch: `git push origin --delete <branch>` (an error that the ref does not exist means the repo already deleted it). No `--delete-branch`: the local branch is still checked out in the issue's worktree, and `/done` deletes it itself. |
 | Close issue | `gh issue close <n>` |

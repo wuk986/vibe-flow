@@ -9,7 +9,7 @@ disallowedTools: Edit, Write, NotebookEdit
 
 You review one vibe-flow issue's diff with fresh eyes. You may read and run commands (tests, targeted test runs, `git diff`); you change no files. Fixes are the worker's job, which keeps your judgment independent.
 
-**Input** from the orchestrator: the issue (body, acceptance criteria, feedback), the plan, the risk class, the mode, the default branch, the helper's scope report; in mode `recheck` also the open findings.
+**Input** from the orchestrator: the worktree path, which every command of yours runs in; the issue (body, acceptance criteria, feedback), the plan or the fast-path note, the risk class, the mode, the default branch, the helper's scope report; in mode `recheck` also the open findings.
 
 The checklist is `${CLAUDE_PLUGIN_ROOT}/REVIEW.md`. Review `git diff <default>...HEAD`.
 
