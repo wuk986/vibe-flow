@@ -1,6 +1,6 @@
 # vibe-flow
 
-A kanban-driven vibe coding workflow for Claude Code, usable in any project. The forge is the source of truth: the issue, the plan, the work done, and the manual test instructions all live there, and the status lives in a GitHub Projects board or, on Forgejo and Gitea, in the issues' status labels.
+A kanban-driven vibe coding workflow for Claude Code, usable in any project. The forge is the source of truth: the issue, the plan, the work done, and the manual test instructions all live there, and the status lives in a project board (GitHub Projects, Gitea 28 or later) or, on Forgejo and older Gitea, in the issues' status labels.
 
 ```
 /vibe-flow:issue → Backlog → /vibe-flow:work → In Progress → Review → (manual check) → /vibe-flow:done → Done
@@ -48,7 +48,7 @@ Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<
 - [rules/vibe-flow.md](rules/vibe-flow.md): the rules loaded into every session of a vibe-flow project, through the hook in [hooks/](hooks/)
 - [CONVENTIONS.md](CONVENTIONS.md): statuses, assets, labels, risk classes, languages, the CLAUDE.md section
 - [REVIEW.md](REVIEW.md): the review checklist
-- [forges/](forges/): adapters for GitHub (`gh`) and Forgejo/Gitea (REST, plus Claude in Chrome for an optional board view)
+- [forges/](forges/): adapters for GitHub (`gh`), Gitea (REST with the project board API from 28.0.0), and Forgejo (REST, plus Claude in Chrome for an optional board view)
 - [skills/](skills/): the four skills
 - [agents/](agents/): the subagent roles `/vibe-flow:work` orchestrates; planner, reviewer, and helper cannot edit files
 
@@ -56,5 +56,6 @@ Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<
 
 - **Claude Code** with plugin support; on Windows, Git Bash (the rules hook and the GitHub board script are Bash)
 - **GitHub:** `gh`, logged in, with the `project` scope (`gh auth refresh -s project`)
-- **Forgejo or Gitea:** environment variable `FORGEJO_TOKEN` or `GITEA_TOKEN`, `curl`. The status lives in `status/` labels, since vibe-flow uses no board API there; Claude in Chrome is only needed to keep an optional board view up to date
+- **Gitea:** environment variable `GITEA_TOKEN` (repo, issue, and project rights), `curl`. Gitea 28.0.0 or later uses its project board API; older versions fall back to the Forgejo label path
+- **Forgejo:** environment variable `FORGEJO_TOKEN`, `curl`. The status lives in `status/` labels, since Forgejo has no board API; Claude in Chrome is only needed to keep an optional board view up to date
 - **Optional:** [graphify](https://pypi.org/project/graphifyy/) (`uv tool install graphifyy`)

@@ -22,7 +22,7 @@ The single place for per-project settings. `/setup` writes it in exactly this sh
 ## vibe-flow
 
 - Forge: github | forgejo | gitea
-- Board: <GitHub project number | Forgejo or Gitea project board URL, or none>
+- Board: <GitHub project number | Gitea project id | Forgejo or older Gitea project board URL, or none>
 - Test: `<command>`
 - Lint: `<command>` | none
 - Kanban language: <language>
@@ -33,7 +33,7 @@ The rules that must hold outside the skills too live in `rules/vibe-flow.md`. Th
 
 ## Board
 
-Four statuses, in order. On GitHub the status lives only in the board column. On Forgejo and Gitea, where vibe-flow uses no board API, it lives in one `status/` label per open issue, and Done is the closed issue; the board there is a view the adapter keeps up when it can.
+Four statuses, in order. On GitHub and on Gitea 28.0.0 or later the status lives only in the board column. On Forgejo and older Gitea, which have no board API, it lives in one `status/` label per open issue, and Done is the closed issue; the board there is a view the adapter keeps up when it can.
 
 | Status | Set by | Meaning |
 |---|---|---|
@@ -58,7 +58,7 @@ Files that belong to an issue, such as mockups and screenshots, are listed in th
   - `chore`: no behavior change (refactoring, dependencies, config, CI, docs).
 - **Area**, zero or more: `area/<topic>`, e.g. `area/ui-ux`. Use the repo's existing area labels. When none fits, propose a new one and create it only after the user agrees.
 - **Risk**, exactly one per issue: `risk/low`, `risk/normal`, or `risk/high`. See Risk.
-- **Status**, Forgejo and Gitea only: `status/backlog`, `status/in-progress`, `status/review`; at most one per issue, set only through the adapter. See Board.
+- **Status**, only where the status lives in labels (Forgejo, Gitea before 28.0.0): `status/backlog`, `status/in-progress`, `status/review`; at most one per issue, set only through the adapter. See Board.
 - **Milestone**, optional: set only when the user names one. A missing milestone is created only after the user agrees.
 
 `/setup` creates the labels vibe-flow defines with these descriptions and brings existing ones in line:
