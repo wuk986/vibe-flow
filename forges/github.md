@@ -2,7 +2,7 @@
 
 Everything runs through `gh` inside the project checkout. It needs the `repo` and `project` scopes; when a call fails on scopes, have the user run `gh auth refresh -s project`.
 
-`<P>` is the project number from the CLAUDE.md `Board:` line. `board` stands for `bash ~/.claude/vibe-flow/forges/github-board.sh`. In `gh api` paths, gh fills in `{owner}` and `{repo}` itself.
+`<P>` is the project number from the CLAUDE.md `Board:` line. `board` stands for `bash "<plugin root>/forges/github-board.sh"`. In `gh api` paths, gh fills in `{owner}` and `{repo}` itself.
 
 | Operation | Command |
 |---|---|

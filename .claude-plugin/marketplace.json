@@ -1,0 +1,16 @@
+{
+  "name": "vibe-flow",
+  "owner": {
+    "name": "wuk986",
+    "url": "https://github.com/wuk986"
+  },
+  "description": "The vibe-flow kanban workflow for Claude Code.",
+  "plugins": [
+    {
+      "name": "vibe-flow",
+      "source": "./",
+      "description": "Kanban-driven vibe coding workflow: /vibe-flow:setup, /vibe-flow:issue, /vibe-flow:work, /vibe-flow:done.",
+      "category": "development"
+    }
+  ]
+}

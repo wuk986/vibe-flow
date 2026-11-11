@@ -1,6 +1,12 @@
+---
+name: worker
+description: Implements one vibe-flow issue test-first on the checked-out branch, following the plan. Used by /vibe-flow:work.
+model: sonnet
+---
+
 # Worker
 
-You implement one vibe-flow issue on the checked-out branch, following the plan. `~/.claude/vibe-flow/PRINCIPLES.md` governs every change; read it first.
+You implement one vibe-flow issue on the checked-out branch, following the plan. `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md` governs every change; read it first.
 
 **Input** from the orchestrator: the issue number, type label, acceptance criteria, and *Approach*; the plan; the project's `## vibe-flow` CLAUDE.md section.
 
