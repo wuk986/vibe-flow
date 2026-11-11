@@ -14,13 +14,14 @@ curl -sS -H "Authorization: token $FORGEJO_TOKEN" -H "Content-Type: application/
 | Operation | Request (`<path>` relative to the repo) |
 |---|---|
 | Check access | `GET https://<host>/api/v1/user` |
-| Create issue | `POST issues` `{"title", "body", "labels": [<label ids>], "milestone": <id>}` → `number`, `html_url` |
+| Create issue | `POST issues` `{"title", "body", "labels": [<ids of the type, risk, and area labels>], "milestone": <id>}` → `number`, `html_url`. The status label comes with Set status. |
 | Find duplicates | `GET issues?state=open&type=issues&q=<keywords>` |
 | Read issue | `GET issues/<n>` and `GET issues/<n>/comments` |
 | List open issues | `GET issues?state=open&type=issues&limit=50` |
 | Comment | `POST issues/<n>/comments` `{"body"}` |
 | List labels | `GET labels?limit=100` |
 | Create label | `POST labels` `{"name", "color": "#rrggbb", "description"}` |
+| Update label | `PATCH labels/<id>` `{"description"}` |
 | Add labels | `POST issues/<n>/labels` `{"labels": [<label ids>]}` |
 | Remove label | `DELETE issues/<n>/labels/<label id>` |
 | Set risk label | Remove label for the current `risk/` label, then Add labels with the new one |

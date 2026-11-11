@@ -61,6 +61,20 @@ Files that belong to an issue, such as mockups and screenshots, are listed in th
 - **Status**, Forgejo only: `status/backlog`, `status/in-progress`, `status/review`; at most one per issue, set only through the adapter. See Board.
 - **Milestone**, optional: set only when the user names one. A missing milestone is created only after the user agrees.
 
+`/setup` creates the labels vibe-flow defines with these descriptions and brings existing ones in line:
+
+| Label | Description |
+|---|---|
+| `bug` | Existing behavior is wrong |
+| `feature` | New or changed behavior |
+| `chore` | No behavior change |
+| `risk/low` | Risk class low: fast path, one light review |
+| `risk/normal` | Risk class normal: full review |
+| `risk/high` | Risk class high: full review with failure modes |
+| `status/backlog` | Forgejo status: described, not started |
+| `status/in-progress` | Forgejo status: being worked on |
+| `status/review` | Forgejo status: waiting for the manual check |
+
 ## Risk
 
 Every issue carries a risk class as its `risk/` label. It decides which models review and whether `/work` may take its fast path.

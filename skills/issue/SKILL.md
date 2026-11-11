@@ -19,5 +19,5 @@ Turns the user's description into a planned issue on the board. The description 
    - **Body**: *Goal*, *Acceptance criteria*, *Out of scope*, *Approach*, *Risks*; omit a section that is empty. Add *Assets* with the repo paths of files the user provides, and `Depends on: #<m>` when the issue needs another one first.
    - **Milestone**: only when the user named one.
 5. **Show** the full draft with labels and the risk estimate with its reason; the estimate becomes the issue's `risk/` label (CONVENTIONS.md, Risk), so the user may correct it here. A proposed split comes with it. Wait for the user's OK or corrections.
-6. **Create**: on OK, create any new area label or milestone the user approved, then the issue or issues in order (adapter: Create issue) with their type, area, and `risk/` labels, then set each status to Backlog.
+6. **Create**: on OK, create any new area label or milestone the user approved, then the issue or issues in order (adapter: Create issue) with their type, area, and `risk/` labels, then set each status to Backlog (adapter: Set status), which also puts the issue on the board.
 7. **Report** the issue numbers and URLs.
