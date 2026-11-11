@@ -1,6 +1,6 @@
 {
   "name": "vibe-flow",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Kanban-driven vibe coding workflow: plan issues, build them test-first with risk-based review, hand over for a manual check, merge.",
   "author": {
     "name": "wuk986",

@@ -21,6 +21,7 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | Create milestone | `gh api repos/{owner}/{repo}/milestones -f title="<name>"` |
 | Create repo | `gh repo create <name> --private --source . --push` |
 | Find PR of branch | `gh pr view <branch> --json number,url,state,mergeable,statusCheckRollup` |
+| PR checks | `gh pr checks <pr> --json name,bucket`: each check's `bucket` is `pass`, `fail`, `pending`, `skipping`, or `cancel` (`fail` and `cancel` count as failed). The error "no checks reported" means no CI. Mergeability: `gh pr view <pr> --json mergeable` → `MERGEABLE`, `CONFLICTING`, or `UNKNOWN` (GitHub is still computing it: ask again on the next poll). |
 | Create PR | `gh pr create --head <branch> --title "<title>" --body-file <file>` |
 | Squash-merge | `gh pr merge <pr> --squash --subject "<commit message>"`, then delete the remote branch: `git push origin --delete <branch>` (an error that the ref does not exist means the repo already deleted it). No `--delete-branch`: the local branch is still checked out in the issue's worktree, and `/done` deletes it itself. |
 | Close issue | `gh issue close <n>` |

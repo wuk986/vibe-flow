@@ -31,6 +31,7 @@ curl -sS -H "Authorization: token $<TOKEN>" -H "Content-Type: application/json" 
 | Create milestone | `POST milestones` `{"title"}` |
 | Create repo | `POST https://<host>/api/v1/user/repos` `{"name", "private": true}`, then add the remote and push |
 | Find PR of branch | `GET pulls?state=open`, match `head.ref` |
+| PR checks | `GET pulls/<index>` → `mergeable` (true or false) and `head.sha`; then `GET commits/<head sha>/status` → `state` (`pending`, `success`, `error`, `failure`; `error` and `failure` count as failed) and `statuses[]` with each check's `context` and `status`. `total_count` 0 means no CI. |
 | Create PR | `POST pulls` `{"head": "<branch>", "base": "<default branch>", "title", "body"}` |
 | Squash-merge | `POST pulls/<index>/merge` `{"Do": "squash", "MergeTitleField": "<commit message>", "delete_branch_after_merge": true}` |
 | Close issue | `PATCH issues/<n>` `{"state": "closed"}` |
