@@ -12,7 +12,7 @@ A kanban-driven vibe coding workflow for Claude Code, usable in any project. The
 |---|---|
 | `/vibe-flow:setup` | CLAUDE.md (via `/init` if missing), board with 4 columns, labels, test/lint commands, languages, optional graphify |
 | `/vibe-flow:issue <description>` | Planner analysis with questions until nothing is open; issue with goal, acceptance criteria, out of scope, approach, risks, assets, labels; added to Backlog with its risk label after your OK |
-| `/vibe-flow:work [#n] [feedback]` | Worktree and branch, plan comment (or the fast path for low-risk issues), test-first implementation, risk-based review, green tests + lint, PR, hand-over comment, Review |
+| `/vibe-flow:work [#n] [feedback]` | Worktree and branch, plan comment (or the fast path for low-risk issues), test-first implementation, risk-based review, merge of the default branch, green tests + lint, PR, CI checks, hand-over comment, Review; ends with a verdict: ✅ ready for `/vibe-flow:done`, ⏳ checks still running, or ❌ not ready with reasons |
 | `/vibe-flow:done [#n]` | After your manual check: squash-merge, close the issue, Done, remove the worktree |
 
 ## Install
@@ -48,6 +48,7 @@ Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<
 - [rules/vibe-flow.md](rules/vibe-flow.md): the rules loaded into every session of a vibe-flow project, through the hook in [hooks/](hooks/)
 - [CONVENTIONS.md](CONVENTIONS.md): statuses, assets, labels, risk classes, languages, the CLAUDE.md section
 - [REVIEW.md](REVIEW.md): the review checklist
+- [TESTING.md](TESTING.md): the manual test plan for vibe-flow itself, run before each release
 - [forges/](forges/): adapters for GitHub (`gh`), Gitea (REST with the project board API from 28.0.0), and Forgejo (REST, plus Claude in Chrome for an optional board view)
 - [skills/](skills/): the four skills
 - [agents/](agents/): the subagent roles `/vibe-flow:work` orchestrates; planner, reviewer, and helper cannot edit files
