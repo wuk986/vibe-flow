@@ -1,6 +1,6 @@
 ---
 name: work
-description: Work a kanban issue end to end - Opus plans, Sonnet/Haiku builds test-first, risk-based review (Sonnet/Opus/Fable), green gate, PR, move to Review.
+description: Work a kanban issue end to end - plan, build test-first, risk-based review, green gate, PR, move to Review.
 disable-model-invocation: true
 argument-hint: "[#n] [feedback from manual check]"
 ---
@@ -11,14 +11,14 @@ Takes one issue from Backlog (or back from Review with feedback) to Review: gate
 
 ## Subagents
 
-Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` named here.
+Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` named here. This table and the review table in step 5 are the only place that assigns models; the README links here.
 
 | Role | Model |
 |---|---|
-| planner | `opus` |
+| planner | its default, `opus` |
 | worker | from the plan: `sonnet` or `haiku` |
 | reviewer | from the review table in step 5 |
-| helper | `haiku` |
+| helper | its default, `haiku` |
 
 A subagent's report is a claim. The gate verdict that counts is the helper's.
 
@@ -26,7 +26,7 @@ A subagent's report is a claim. The gate verdict that counts is the helper's.
 
 ## 1. Pick the issue
 
-1. **Load context** as described in `~/.claude/vibe-flow/CONVENTIONS.md`.
+1. **Load context** as described in `${CLAUDE_PLUGIN_ROOT}/CONVENTIONS.md`; `<plugin root>` there is `${CLAUDE_PLUGIN_ROOT}`.
 2. No issue number given → list the Backlog issues (number, title, type) and ask which one.
 3. Read the issue: body, labels, every comment. A closed issue or one in Done → stop and say so.
 4. Its `Depends on: #<m>` names an open issue → stop and say which one.
@@ -84,7 +84,7 @@ Run the gate once more on the final commit. Green → step 7. Red after the work
    - *Changes*: what behaves differently now, key files, commits.
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
    - *Manual check*: numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*.
-   - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review claude-fable-5-1`; a fallback with its reason, a reduced review depth with its warning.
+   - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review <the reviewer's REVIEWER: model ID>`; a fallback with its reason, a reduced review depth with its warning.
    - *Notes*: the reviewers' suggestions and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 3. Set the status to Review.
-4. Tell the user: the PR link, the manual check steps, and the next move: `/done <n>` when the check passes, `/work <n> <feedback>` when it does not.
+4. Tell the user: the PR link, the manual check steps, and the next move: `/vibe-flow:done <n>` when the check passes, `/vibe-flow:work <n> <feedback>` when it does not.

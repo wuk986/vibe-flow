@@ -1,6 +1,6 @@
 ---
 name: issue
-description: Plan a kanban issue from the user's description - Opus analysis, open questions, goal, criteria, approach, risks - and create it in Backlog.
+description: Plan a kanban issue from the user's description - planner analysis, open questions, goal, criteria, approach, risks - and create it in Backlog.
 disable-model-invocation: true
 argument-hint: <description>
 ---
@@ -11,9 +11,9 @@ Turns the user's description into a planned issue on the board. The description 
 
 ## Steps
 
-1. **Load context** as described in `~/.claude/vibe-flow/CONVENTIONS.md`.
+1. **Load context** as described in `${CLAUDE_PLUGIN_ROOT}/CONVENTIONS.md`; `<plugin root>` there is `${CLAUDE_PLUGIN_ROOT}`.
 2. **Duplicates**: search open issues (adapter: Find duplicates); show a likely duplicate and ask before going on.
-3. **Analyze**: spawn the planner (see Subagents in CONVENTIONS.md) on `opus` in mode `issue`. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers, until it returns its analysis.
+3. **Analyze**: spawn the planner (see Subagents in CONVENTIONS.md) on its default model in mode `issue`. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers, until it returns its analysis.
 4. **Draft**, in the Kanban language, from the analysis:
    - **Title**, **Type**, **Area**.
    - **Body**: *Goal*, *Acceptance criteria*, *Out of scope*, *Approach*, *Risks*; omit a section that is empty. Add *Assets* with the repo paths of files the user provides, and `Depends on: #<m>` when the issue needs another one first.

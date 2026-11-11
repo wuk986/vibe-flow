@@ -1,18 +1,22 @@
 # vibe-flow conventions
 
-Shared reference for the vibe-flow skills `/init-project`, `/issue`, `/work`, `/done`. The kanban board is the source of truth: everything about an issue and the work done on it lives there, nothing is mirrored into repo files.
+Shared reference for the vibe-flow skills `/vibe-flow:setup`, `/vibe-flow:issue`, `/vibe-flow:work`, `/vibe-flow:done`; below they are named without the `vibe-flow:` prefix. The kanban board is the source of truth: everything about an issue and the work done on it lives there, nothing is mirrored into repo files.
+
+## Plugin root
+
+`<plugin root>` stands for the directory the vibe-flow plugin is installed in. Every skill names it where it loads this file; paths in this file and in the adapters are relative to it.
 
 ## Load context
 
-Every skill except `/init-project` starts here:
+Every skill except `/setup` starts here:
 
-1. Read the `## vibe-flow` section of the project's CLAUDE.md. Missing or incomplete → stop and tell the user to run `/init-project`.
-2. Read the adapter for the configured forge, `~/.claude/vibe-flow/forges/<forge>.md`. Every issue, label, board, and PR operation goes through it.
+1. Read the `## vibe-flow` section of the project's CLAUDE.md. Missing or incomplete → stop and tell the user to run `/vibe-flow:setup`.
+2. Read the adapter for the configured forge, `<plugin root>/forges/<forge>.md`. Every issue, label, board, and PR operation goes through it.
 3. Owner, repo, and host come from `git remote get-url origin`.
 
 ## CLAUDE.md section
 
-The single place for per-project settings. `/init-project` writes it in exactly this shape; the other skills only read it.
+The single place for per-project settings. `/setup` writes it in exactly this shape; the other skills only read it.
 
 ```markdown
 ## vibe-flow
@@ -25,7 +29,7 @@ The single place for per-project settings. `/init-project` writes it in exactly 
 - Commit language: <language>
 ```
 
-The rules that must hold outside the skills too live in `rules/vibe-flow.md`. The installer links them into `~/.claude/rules/`, so they are always loaded and a rule change needs no commit in the project.
+The rules that must hold outside the skills too live in `rules/vibe-flow.md`. The plugin's `SessionStart` hook adds them to every session in a project with this section, so a rule change needs no commit in the project.
 
 ## Board
 
@@ -74,7 +78,7 @@ Every issue gets a risk class in `/work`; it decides which models review.
 
 ## Subagents
 
-Spawn a role as a `general-purpose` subagent with an explicit `model`. Its prompt starts with `Read ~/.claude/vibe-flow/roles/<role>.md and follow it.`, followed by the inputs that file lists. Continue a running subagent with SendMessage instead of spawning a new one.
+Each role is a plugin agent: spawn it with subagent type `vibe-flow:<role>` (`planner`, `worker`, `reviewer`, `helper`). Its prompt carries the inputs `<plugin root>/agents/<role>.md` lists. The agent's frontmatter sets its default model; pass `model` only where a skill assigns a different one. Continue a running subagent with SendMessage instead of spawning a new one.
 
 ## Git
 

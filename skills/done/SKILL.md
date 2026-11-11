@@ -11,7 +11,7 @@ The user runs this after checking the work by hand; running it is their approval
 
 ## Steps
 
-1. **Load context** as described in `~/.claude/vibe-flow/CONVENTIONS.md`.
+1. **Load context** as described in `${CLAUDE_PLUGIN_ROOT}/CONVENTIONS.md`; `<plugin root>` there is `${CLAUDE_PLUGIN_ROOT}`.
 2. **Pick the issue**: the number given, else the one from the current branch name `<n>-<slug>`, else list the issues in Review and ask.
 3. **Check**: the issue is in Review and its branch has an open PR that is mergeable with no failing checks. Anything else → stop and report what is off.
 4. **Merge**: squash-merge the PR and delete the remote branch. Commit message: `#<n>: <issue title>`, translated into the Commit language when it differs.
