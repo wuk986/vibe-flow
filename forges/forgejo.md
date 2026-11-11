@@ -1,13 +1,15 @@
-# Forgejo adapter
+# Forgejo and Gitea adapter
 
-Issues, comments, labels, milestones, PRs, and the status use the REST API. Forgejo has no API for project boards, so the status lives in `status/` labels (CONVENTIONS.md, Board). The board itself is an optional view, kept up in the user's Chrome through Claude in Chrome on the board URL from the CLAUDE.md `Board:` line, as far as that works.
+Serves both forges: Forgejo began as a fork of Gitea, and the REST API and web UI used here are the same on both. `gitea.md` points here.
+
+Issues, comments, labels, milestones, PRs, and the status use the REST API. Forgejo has no API for project boards, and Gitea's is too new to rely on, so the status lives in `status/` labels (CONVENTIONS.md, Board). The board itself is an optional view, kept up in the user's Chrome through Claude in Chrome on the board URL from the CLAUDE.md `Board:` line, as far as that works.
 
 ## REST API
 
-The token is read from the environment variable `FORGEJO_TOKEN`; never print it. `<host>`, `<owner>`, `<repo>` come from `git remote get-url origin`.
+The token is read from an environment variable, `<TOKEN>` below: `FORGEJO_TOKEN` on Forgejo, `GITEA_TOKEN` on Gitea. Never print it. `<host>`, `<owner>`, `<repo>` come from `git remote get-url origin`.
 
 ```bash
-curl -sS -H "Authorization: token $FORGEJO_TOKEN" -H "Content-Type: application/json" \
+curl -sS -H "Authorization: token $<TOKEN>" -H "Content-Type: application/json" \
   "https://<host>/api/v1/repos/<owner>/<repo>/<path>" [-X <METHOD> -d @<json file>]
 ```
 

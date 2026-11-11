@@ -7,5 +7,5 @@
     "url": "https://github.com/wuk986"
   },
   "repository": "https://github.com/wuk986/vibe-flow",
-  "keywords": ["kanban", "workflow", "tdd", "code-review", "github-projects", "forgejo"]
+  "keywords": ["kanban", "workflow", "tdd", "code-review", "github-projects", "forgejo", "gitea"]
 }
