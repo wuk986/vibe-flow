@@ -37,7 +37,7 @@ The worktree `<wt>` is `../<repo>.worktrees/<n>-<slug>` (CONVENTIONS.md, Git). F
 
 1. Other issues in In Progress → mention them in one line and continue.
 2. `<wt>` exists → **resume**: `git status` there shows uncommitted changes → stop, show them, and ask the user how to proceed; their changes are theirs to commit or discard. Otherwise pull in `<wt>`.
-3. No `<wt>`, but branch `<n>-<slug>` exists locally or on the remote → **resume**: `git worktree add <wt> <n>-<slug>`, then pull there. The branch is checked out in the main checkout, as vibe-flow 1.x left it → git refuses; stop and ask the user to switch the main checkout to another branch first, after committing or stashing what is open there. Neither exists → fetch, then `git worktree add -b <n>-<slug> <wt> origin/<default>`.
+3. No `<wt>`, but branch `<n>-<slug>` exists locally or on the remote → **resume**: `git worktree add <wt> <n>-<slug>`, then pull there. The branch is checked out in the main checkout, as vibe-flow 1.x left it → git refuses; stop and ask the user to switch the main checkout to another branch first, after committing or stashing what is open there. Neither exists → fetch, then `git worktree add --no-track -b <n>-<slug> <wt> origin/<default>`; without `--no-track` the branch would track the default branch, and a plain `git push` would miss its own remote branch.
 4. A new worktree has none of the main checkout's untracked files. When the Test or Lint command needs installed dependencies, run the project's install step in `<wt>` (e.g. `npm ci`, `uv sync`). Local configuration that the tests need and that is not in the repo, such as `.env` → ask the user; never copy it on your own.
 5. The issue lists *Assets* that are not committed on the branch yet → copy each from the main checkout to the same path in `<wt>` and commit them: `#<n>: Add assets`. A listed file that is missing → stop and ask the user.
 6. Feedback given (the argument after the number) → post it as an issue comment headed *Feedback from manual check*.
@@ -47,7 +47,17 @@ The worktree `<wt>` is `../<repo>.worktrees/<n>-<slug>` (CONVENTIONS.md, Git). F
 
 The risk class starts from the issue's `risk/` label (CONVENTIONS.md, Risk).
 
-**Fast path**: the label is `risk/low`, the issue has an *Approach*, and no feedback was given → no planner. Choose the worker yourself: `haiku` when the *Approach* names every change file by file and each one is mechanical, otherwise `sonnet`. Post the plan comment in the Kanban language: fast path, risk low, *Approach* from the issue, the worker model and why. Continue with step 4.
+**Fast path**: the label is `risk/low`, the issue has an *Approach*, and no feedback was given → no planner. Choose the worker yourself: `haiku` when the *Approach* names every change file by file and each one is mechanical, otherwise `sonnet`. Post the plan comment in the Kanban language, in this shape:
+
+```
+PLAN (fast path)
+Risk: low (label)
+Worker: haiku | sonnet: <reason>
+Approach: from the issue
+Tests: mapped by the worker, listed in the hand-over
+```
+
+Continue with step 4.
 
 Otherwise:
 
@@ -85,15 +95,15 @@ Only must-fix findings go to the worker; collect the suggestions for the hand-ov
 
 ## 6. Verify
 
-Run the gate once more on the final commit. Green → step 7. Red after the worker's fixes, or a failure that already exists on the default branch → stop, report it to the user, and leave the status at In Progress.
+Run the gate once more on the final commit, unless the last green gate already ran on that same commit. Green → step 7. Red after the worker's fixes, or a failure that already exists on the default branch → stop, report it to the user, and leave the status at In Progress.
 
 ## 7. Hand over
 
-1. Push the branch. No PR yet → create one: title = issue title, body = `Closes #<n>` plus one sentence, in the Kanban language.
+1. Push the branch from `<wt>`: `git push -u origin <n>-<slug>`. No PR yet → create one: title = issue title, body = `Closes #<n>` plus one sentence, in the Kanban language.
 2. Post the hand-over comment on the issue, in the Kanban language:
    - *Changes*: what behaves differently now, key files, commits.
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
-   - *Manual check*: the worktree path `<wt>` to run the check in, then numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*.
+   - *Manual check*: the worktree path `<wt>` to run the check in, then numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*, and say what the user has to look at for it, e.g. a visual check of the rendered page.
    - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review <the reviewer's REVIEWER: model ID>`, or `fast path · build haiku · review <model ID>`; a raised risk class, a fallback with its reason, a reduced review depth with its warning.
    - *Notes*: the reviewers' suggestions and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 3. Set the status to Review.
