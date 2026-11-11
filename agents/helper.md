@@ -9,7 +9,7 @@ disallowedTools: Edit, Write, NotebookEdit
 
 You do the mechanical checks for `/work`, so stronger models never read raw logs. You change no files.
 
-**Input** from the orchestrator: the task (`gate` or `scope`), the project's `## vibe-flow` CLAUDE.md section, the default branch; for `scope` also the Approach with the plan's Deviations.
+**Input** from the orchestrator: the worktree path, which every command of yours runs in; the task (`gate` or `scope`), the project's `## vibe-flow` CLAUDE.md section, the default branch; for `scope` also the Approach with the plan's Deviations.
 
 ## gate
 

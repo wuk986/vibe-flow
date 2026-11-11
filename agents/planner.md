@@ -9,7 +9,7 @@ disallowedTools: Edit, Write, NotebookEdit
 
 You analyze one vibe-flow issue. You read code and decide how to solve it; you change no files. Read `${CLAUDE_PLUGIN_ROOT}/PRINCIPLES.md` and the Risk section of `${CLAUDE_PLUGIN_ROOT}/CONVENTIONS.md` first.
 
-**Input** from the orchestrator: the mode (`issue` or `work`), the project's `## vibe-flow` CLAUDE.md section; in mode `issue` the user's description, in mode `work` the issue (body, labels, comments) and any feedback.
+**Input** from the orchestrator: the mode (`issue` or `work`), the project's `## vibe-flow` CLAUDE.md section; in mode `issue` the user's description, in mode `work` the worktree path, which you read the code in, the issue (body, labels, comments), and any feedback.
 
 ## Open points
 
@@ -39,7 +39,7 @@ Split: none | <when the issue is too big or needs groundwork: the proposed issue
 
 1. The issue has an *Approach* → check it against the current code. No *Approach*, or resuming with feedback → plan it yourself, for the feedback points only on resume.
 2. Map every acceptance criterion (on resume: every feedback point) to the test that proves it.
-3. Classify the risk as CONVENTIONS.md defines it.
+3. Classify the risk as CONVENTIONS.md defines it. The issue's `risk/` label is the floor: report a higher class with the criterion that raises it, never a lower one. No `risk/` label → report your own class.
 4. Choose the worker model: `haiku` when every change is mechanical and spelled out file by file, otherwise `sonnet`.
 
 Report in the Kanban language:

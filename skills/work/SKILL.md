@@ -16,11 +16,11 @@ Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` na
 | Role | Model |
 |---|---|
 | planner | its default, `opus` |
-| worker | from the plan: `sonnet` or `haiku` |
+| worker | from the plan or the fast path: `sonnet` or `haiku` |
 | reviewer | from the review table in step 5 |
 | helper | its default, `haiku` |
 
-A subagent's report is a claim. The gate verdict that counts is the helper's.
+Every role gets the absolute path of the issue's worktree as input and works only there. A subagent's report is a claim. The gate verdict that counts is the helper's.
 
 **Escalation**: once per step, run the worker or reviewer one level higher (haiku → sonnet → opus) when the gate is red twice for the same `Reason`, when the same finding ID appears in two reviews in a row, or when it reports `BLOCKED`. A `BLOCKED` that needs information only the user has → ask the user instead. Fable is never an escalation level.
 
@@ -33,22 +33,32 @@ A subagent's report is a claim. The gate verdict that counts is the helper's.
 
 ## 2. Prepare
 
-1. `git status` shows uncommitted changes other than the issue's *Assets* → stop, show them, and ask the user how to proceed. Their changes are theirs to stash, commit, or discard.
-2. Other issues in In Progress → mention them in one line and continue.
-3. Branch `<n>-<slug>` exists locally or on the remote → **resume**: check it out and pull. Otherwise create it from the freshly pulled default branch.
-4. The issue lists *Assets* that are not committed yet → commit them on the branch: `#<n>: Add assets`. A listed file that is missing → stop and ask the user.
-5. Feedback given (the argument after the number) → post it as an issue comment headed *Feedback from manual check*.
-6. Set the status to In Progress.
+The worktree `<wt>` is `../<repo>.worktrees/<n>-<slug>` (CONVENTIONS.md, Git). From here on, every git command for the issue runs in `<wt>`; the main checkout stays as it is.
+
+1. Other issues in In Progress → mention them in one line and continue.
+2. `<wt>` exists → **resume**: `git status` there shows uncommitted changes → stop, show them, and ask the user how to proceed; their changes are theirs to commit or discard. Otherwise pull in `<wt>`.
+3. No `<wt>`, but branch `<n>-<slug>` exists locally or on the remote → **resume**: `git worktree add <wt> <n>-<slug>`, then pull there. The branch is checked out in the main checkout, as vibe-flow 1.x left it → git refuses; stop and ask the user to switch the main checkout to another branch first, after committing or stashing what is open there. Neither exists → fetch, then `git worktree add -b <n>-<slug> <wt> origin/<default>`.
+4. A new worktree has none of the main checkout's untracked files. When the Test or Lint command needs installed dependencies, run the project's install step in `<wt>` (e.g. `npm ci`, `uv sync`). Local configuration that the tests need and that is not in the repo, such as `.env` → ask the user; never copy it on your own.
+5. The issue lists *Assets* that are not committed on the branch yet → copy each from the main checkout to the same path in `<wt>` and commit them: `#<n>: Add assets`. A listed file that is missing → stop and ask the user.
+6. Feedback given (the argument after the number) → post it as an issue comment headed *Feedback from manual check*.
+7. Set the status to In Progress.
 
 ## 3. Plan
 
+The risk class starts from the issue's `risk/` label (CONVENTIONS.md, Risk).
+
+**Fast path**: the label is `risk/low`, the issue has an *Approach*, and no feedback was given → no planner. Choose the worker yourself: `haiku` when the *Approach* names every change file by file and each one is mechanical, otherwise `sonnet`. Post the plan comment in the Kanban language: fast path, risk low, *Approach* from the issue, the worker model and why. Continue with step 4.
+
+Otherwise:
+
 1. Spawn the planner in mode `work`.
 2. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers.
-3. Post the plan as an issue comment in the Kanban language: risk class with reason, worker model, *Tests*, *Deviations*, and *Approach* when the planner wrote one. The issue's own *Approach* is not repeated. On resume, the plan covers only the feedback.
+3. Its risk is higher than the label, or the issue has no `risk/` label → set the planner's class as the label.
+4. Post the plan as an issue comment in the Kanban language: risk class with reason (when it was raised: from what and why), worker model, *Tests*, *Deviations*, and *Approach* when the planner wrote one. The issue's own *Approach* is not repeated. On resume, the plan covers only the feedback.
 
 ## 4. Build
 
-1. Spawn the worker with the plan and the issue's *Approach*.
+1. Spawn the worker with the plan (on the fast path: the issue's acceptance criteria, which the worker maps to tests itself) and the issue's *Approach*.
 2. Run the **gate**: the helper's `gate`. `RED` → continue the worker with the helper's report, then gate again.
 3. Gate green → run the helper's `scope`; its report goes to every reviewer.
 
@@ -57,15 +67,15 @@ A subagent's report is a claim. The gate verdict that counts is the helper's.
 | Risk | Intermediate review | Final review R1 and R2 |
 |---|---|---|
 | low | none | `sonnet`, mode `light` |
-| normal | `sonnet`, mode `light` | `opus`, mode `full` |
+| normal | none | `opus`, mode `full` |
 | high | `opus`, mode `light` | `fable`, mode `full` |
 
-1. **Intermediate review** → the worker fixes its must-fix findings → gate.
-2. **Final review R1** → the worker fixes its must-fix findings → gate.
+1. **Intermediate review**, high risk only → the worker fixes its must-fix findings → gate.
+2. **Final review R1**. Clean → step 6. Must-fix findings → the worker fixes them → gate.
 3. **R2**: the same model as R1 in mode `recheck`, given only the open findings. Clean → step 6.
 4. Must-fix findings still open after R2 → **stop**: post exactly those findings (ID, `file:line`, problem) as one issue comment, leave the status at In Progress, and lay them out for the user. A third review round does not exist.
 
-Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict on a low-risk issue raises it to normal; continue with that row. After each review `git status` must be clean; otherwise stop and report what the reviewer changed.
+Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict on a low-risk issue raises it to normal: set `risk/normal`, post the reason as an issue comment, and start the final review again with the normal row. After each review `git status` in `<wt>` must be clean; otherwise stop and report what the reviewer changed.
 
 **Fable**: a final review on `fable` counts as unavailable when the call fails or the `REVIEWER:` line names another model. Retry a limit or overload error once; an access error not at all. Fable is tried anew on every run, so a plan upgrade takes effect at once. Unavailable →
 
@@ -83,8 +93,8 @@ Run the gate once more on the final commit. Green → step 7. Red after the work
 2. Post the hand-over comment on the issue, in the Kanban language:
    - *Changes*: what behaves differently now, key files, commits.
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts.
-   - *Manual check*: numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*.
-   - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review <the reviewer's REVIEWER: model ID>`; a fallback with its reason, a reduced review depth with its warning.
+   - *Manual check*: the worktree path `<wt>` to run the check in, then numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*.
+   - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review <the reviewer's REVIEWER: model ID>`, or `fast path · build haiku · review <model ID>`; a raised risk class, a fallback with its reason, a reduced review depth with its warning.
    - *Notes*: the reviewers' suggestions and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 3. Set the status to Review.
-4. Tell the user: the PR link, the manual check steps, and the next move: `/vibe-flow:done <n>` when the check passes, `/vibe-flow:work <n> <feedback>` when it does not.
+4. Tell the user: the PR link, the worktree path, the manual check steps, and the next move: `/vibe-flow:done <n>` when the check passes, `/vibe-flow:work <n> <feedback>` when it does not.
