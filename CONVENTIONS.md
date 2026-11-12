@@ -44,7 +44,7 @@ Four statuses, in order. On GitHub the status lives only in the board column. On
 
 Several issues may sit in In Progress, each in its own worktree (see Git).
 
-A withdrawn issue is closed without a merge and removed from the board (adapter: Remove from board); no status fits it.
+A withdrawn issue is closed without a merge (adapter: Close issue) and taken off the board (adapter: Remove from board, which on every forge leaves the issue itself alone); no status fits it.
 
 ## Assets
 
