@@ -40,14 +40,12 @@ Split: none | <when the issue is too big or needs groundwork: the proposed issue
 1. The issue has an *Approach* → check it against the current code. No *Approach*, or resuming with feedback → plan it yourself, for the feedback points only on resume.
 2. Map every acceptance criterion (on resume: every feedback point) to the test that proves it.
 3. Classify the risk as CONVENTIONS.md defines it. The issue's `risk/` label is the floor: report a higher class with the criterion that raises it, never a lower one. No `risk/` label → report your own class.
-4. Choose the worker model: `haiku` when every change is mechanical and spelled out file by file, otherwise `sonnet`.
 
 Report in the Kanban language:
 
 ```
 PLAN
 Risk: low | normal | high: <reason>
-Worker: sonnet | haiku: <reason>
 Tests: <acceptance criterion → test>
 Deviations: <changes to the issue's Approach and why, or none>
 Approach: <only when you planned it yourself: short steps with the affected files or modules>

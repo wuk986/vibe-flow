@@ -40,10 +40,11 @@ Load the version under test before you start, in a fresh session:
 
 ## `/vibe-flow:work`
 
-- [ ] **Fast path**: on the `risk/low` issue with an Approach. Expected: no planner; a plan comment shaped `PLAN (fast path)`; a haiku or sonnet worker; gate green; one sonnet `light` review; status Review.
+- [ ] **Fast path**: on the `risk/low` issue with an Approach. Expected: no planner; a plan comment shaped `PLAN (fast path)`; a sonnet worker; gate green; one sonnet `light` review with effort medium; status Review.
 - [ ] **Worktree**: during the run, `git worktree list` shows `../<repo>.worktrees/<n>-<slug>`, and the main checkout keeps its branch and stays untouched. The branch tracks its own remote branch after the push (`git -C <worktree> status -sb`).
-- [ ] **Normal risk**: on a `feature` issue. Expected: a planner on opus, no intermediate review, an opus `full` final review, R2 only when R1 had findings.
-- [ ] **High risk**: on an issue touching e.g. input validation of a public interface. Expected: an opus `light` intermediate review and a fable `full` final review, or the documented fallback with its reason in the hand-over.
+- [ ] **Normal risk**: on a `feature` issue. Expected: a planner on opus with effort high, no intermediate review, an opus `full` final review with effort high, R2 only when R1 had findings.
+- [ ] **High risk**: on an issue touching e.g. input validation of a public interface. Expected: a planner on opus with effort xhigh, a sonnet `light` intermediate review, and a fable `full` final review; or the fallback, an opus `full` review with effort xhigh whose report answers every checklist item, with its reason in the hand-over.
+- [ ] **Escalation**: an issue whose test the worker cannot get green. Expected: after the second red gate with the same reason the worker runs once on opus with effort high; still red → ❌ with the failing test, no further attempt.
 - [ ] **Risk raised**: an issue labeled `risk/low` whose change turns out to touch a high-risk criterion. Expected: the label is raised and the reason is posted; it is never lowered.
 - [ ] **Resume with feedback**: `/vibe-flow:work <n> <feedback>` on an issue in Review. Expected: a *Feedback from manual check* comment, the existing worktree is reused, the plan covers only the feedback.
 - [ ] **Parallel issues**: start a second issue while the first is in Review. Expected: a second worktree; the first stays untouched.

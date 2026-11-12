@@ -1,6 +1,6 @@
 # Review checklist
 
-Used by the reviewer role. The item numbers are stable: finding IDs and the `focus` mode refer to them. Each item applies a section of [PRINCIPLES.md](PRINCIPLES.md).
+Used by the reviewer role. The item numbers are stable: finding IDs and the fallback review's `Checklist` line refer to them. Each item applies a section of [PRINCIPLES.md](PRINCIPLES.md).
 
 1. **Acceptance**: every acceptance criterion, and every feedback point on resume, is met.
 2. **Tests** (Test-first): every criterion has a test; a bug has a regression test that was red before the fix; no test was weakened, skipped, or deleted to reach green.
