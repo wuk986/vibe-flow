@@ -7,7 +7,7 @@ argument-hint: "[#n] [feedback from manual check]"
 
 # work
 
-Takes one issue from Backlog (or back from Review with feedback) to Review: gate green, PR open, everything documented on the issue. You are the **orchestrator**: you talk to the board and the user and steer the subagents; planning, building, and reviewing run in subagents on the model this skill assigns. Work autonomously; stop for the user only where a step says so. Every run ends with a verdict (step 8), also a run that stops early.
+Takes one issue from Backlog (or back from Review with feedback) to Review: gate green, PR open, everything documented on the issue. You are the **orchestrator**: you talk to the board and the user and steer the subagents; planning, building, and reviewing run in subagents on the model this skill assigns. Work autonomously; stop for the user only where a step says so. Two kinds of stop: **ask** (a question for the user; wait for the answer, then carry on) and **end** (the run is over). Every run that got past step 1 ends with a verdict (step 8), also one that ends early; steps 1.3 and 1.4 end without one, since nothing ran.
 
 ## Subagents
 
@@ -24,6 +24,8 @@ Every role gets the absolute path of the issue's worktree as input and works onl
 
 **Escalation**: once per step, run the worker or reviewer one level higher (haiku → sonnet → opus) when the gate is red twice for the same `Reason`, when the same finding ID appears in two reviews in a row, or when it reports `BLOCKED`. A `BLOCKED` that needs information only the user has → ask the user instead. Fable is never an escalation level.
 
+**Fix loops end**: every worker fix followed by a gate (steps 4, 5, 6) ends after the escalated worker's attempt. The gate is still red, or the escalated worker reports `BLOCKED` again → end with ❌ (step 8), naming the failing test or the blocker.
+
 ## 1. Pick the issue
 
 1. **Load context** as described in `${CLAUDE_PLUGIN_ROOT}/CONVENTIONS.md`; `<plugin root>` there is `${CLAUDE_PLUGIN_ROOT}`.
@@ -35,11 +37,11 @@ Every role gets the absolute path of the issue's worktree as input and works onl
 
 The worktree `<wt>` is `../<repo>.worktrees/<n>-<slug>` (CONVENTIONS.md, Git). From here on, every git command for the issue runs in `<wt>`; the main checkout stays as it is.
 
-1. Other issues in In Progress → mention them in one line and continue.
-2. `<wt>` exists → **resume**: `git status` there shows uncommitted changes → stop, show them, and ask the user how to proceed; their changes are theirs to commit or discard. Otherwise pull in `<wt>`.
-3. No `<wt>`, but branch `<n>-<slug>` exists locally or on the remote → **resume**: `git worktree add <wt> <n>-<slug>`, then pull there. The branch is checked out in the main checkout, as vibe-flow 1.x left it → git refuses; stop and ask the user to switch the main checkout to another branch first, after committing or stashing what is open there. Neither exists → fetch, then `git worktree add --no-track -b <n>-<slug> <wt> origin/<default>`; without `--no-track` the branch would track the default branch, and a plain `git push` would miss its own remote branch.
+1. Other issues in In Progress → mention them in one line and continue. Fetch, so the remote branches below are current.
+2. `<wt>` exists → **resume**: `git status` there shows uncommitted changes → ask the user how to proceed; their changes are theirs to commit or discard. Otherwise, when the branch has an upstream (`git rev-parse @{u}` succeeds), `git pull --ff-only` in `<wt>`; without one, as after a run that ended before its push, there is nothing to pull.
+3. No `<wt>`, but branch `<n>-<slug>` exists locally or on the remote → **resume**: `git worktree add <wt> <n>-<slug>`, then pull there as in 2. The branch is checked out in the main checkout, as vibe-flow 1.x left it → git refuses; ask the user to switch the main checkout to another branch first, after committing or stashing what is open there. Neither exists → `git worktree add --no-track -b <n>-<slug> <wt> origin/<default>`; without `--no-track` the branch would track the default branch, and a plain `git push` would miss its own remote branch.
 4. A new worktree has none of the main checkout's untracked files. When the Test or Lint command needs installed dependencies, run the project's install step in `<wt>` (e.g. `npm ci`, `uv sync`). Local configuration that the tests need and that is not in the repo, such as `.env` → ask the user; never copy it on your own.
-5. The issue lists *Assets* that are not committed on the branch yet → copy each from the main checkout to the same path in `<wt>` and commit them: `#<n>: Add assets`. A listed file that is missing → stop and ask the user.
+5. The issue lists *Assets* that are not committed on the branch yet → copy each from the main checkout to the same path in `<wt>` and commit them: `#<n>: Add assets`. A listed file that is missing → ask the user.
 6. Feedback given (the argument after the number) → post it as an issue comment headed *Feedback from manual check*.
 7. Set the status to In Progress.
 
@@ -47,7 +49,9 @@ The worktree `<wt>` is `../<repo>.worktrees/<n>-<slug>` (CONVENTIONS.md, Git). F
 
 The risk class starts from the issue's `risk/` label (CONVENTIONS.md, Risk).
 
-**Fast path**: the label is `risk/low`, the issue has an *Approach*, and no feedback was given → no planner. Choose the worker yourself: `haiku` when the *Approach* names every change file by file and each one is mechanical, otherwise `sonnet`. Post the plan comment in the Kanban language, in this shape:
+**Continue**: a resume without feedback, on a branch that already has commits beyond `origin/<default>` (e.g. after a ❌ whose cause the user fixed by hand) → no planner and no new build. Post a short plan comment (continue: gate, final review, update), run the gate (step 4.2, with the worker fixing a red gate), then step 4.3, then the final review from R1 with the issue's current risk row, then steps 6–8.
+
+**Fast path**: a fresh run (the branch has no commits beyond `origin/<default>`), the label is `risk/low`, and the issue has an *Approach* → no planner. Choose the worker yourself: `haiku` when the *Approach* names every change file by file and each one is mechanical, otherwise `sonnet`. Post the plan comment in the Kanban language, in this shape:
 
 ```
 PLAN (fast path)
@@ -59,7 +63,7 @@ Tests: mapped by the worker, listed in the hand-over
 
 Continue with step 4.
 
-Otherwise:
+Otherwise, on a fresh run or a resume with feedback:
 
 1. Spawn the planner in mode `work`.
 2. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers.
@@ -70,7 +74,7 @@ Otherwise:
 
 1. Spawn the worker with the plan (on the fast path: the issue's acceptance criteria, which the worker maps to tests itself) and the issue's *Approach*.
 2. Run the **gate**: the helper's `gate`. `RED` → continue the worker with the helper's report, then gate again.
-3. Gate green → run the helper's `scope`; its report goes to every reviewer.
+3. Gate green → fetch, then run the helper's `scope`; its report goes to every reviewer.
 
 ## 5. Review
 
@@ -85,13 +89,15 @@ Otherwise:
 3. **R2**: the same model as R1 in mode `recheck`, given only the open findings. Clean → step 6.
 4. Must-fix findings still open after R2 → **stop**: post exactly those findings (ID, `file:line`, problem) as one issue comment, leave the status at In Progress, lay them out for the user, and end with the verdict ❌ (step 8). A third review round does not exist.
 
-Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict on a low-risk issue raises it to normal: set `risk/normal`, post the reason as an issue comment, and start the final review again with the normal row. After each review `git status` in `<wt>` must be clean; otherwise stop and report what the reviewer changed.
+Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict means the change meets a high-risk criterion (CONVENTIONS.md, Risk) on a low- or normal-risk issue: set `risk/high`, post the reason as an issue comment, and start the final review again from R1 with the high row; the intermediate review is not repeated. After each review `git status` in `<wt>` must be clean; otherwise end with ❌ and report what the reviewer changed.
 
 **Fable**: a final review on `fable` counts as unavailable when the call fails or the `REVIEWER:` line names another model. Retry a limit or overload error once; an access error not at all. Fable is tried anew on every run, so a plan upgrade takes effect at once. Unavailable →
 
 1. Reviewer on `opus` with effort `high`, mode `full`, and in parallel an independent reviewer on `sonnet`, mode `focus`.
 2. Merge both finding lists and check each finding against the code yourself; drop the ones that do not hold before the worker sees them.
 3. Opus unavailable too → reviewer on `sonnet`, mode `full`, and the hand-over warns of reduced review depth.
+
+After this fallback, R2 runs on `opus` in mode `recheck` with the merged open findings (on `sonnet` when opus was unavailable too).
 
 ## 6. Update and verify
 
@@ -120,4 +126,4 @@ Decide exactly one verdict from what this run established, and write it in the K
 | ⏳ | Everything as for ✅, except that checks are still pending after 10 minutes | `⏳ Almost ready: checks still running (<names>). /vibe-flow:done <n> checks them again before merging.` |
 | ❌ | Anything else: a red gate, must-fix findings after R2, a merge conflict, a failed check, a PR that is not mergeable, a manual check step with an unexpected result, or a `BLOCKED` that only the user can resolve | `❌ Not ready: <each reason in one line>. Next: <the concrete next move>` |
 
-The next move for ❌ names what fits, e.g. `/vibe-flow:work <n> <feedback>` after the user decided on the findings, or resolving the conflict in `<wt>` and running `/vibe-flow:work <n>` again. After the verdict, tell the user the PR link and the worktree path. Never run `/vibe-flow:done` yourself, whatever the verdict.
+The next move for ❌ names what fits, e.g. `/vibe-flow:work <n> <feedback>` after the user decided on the findings, or resolving the conflict in `<wt>` and running `/vibe-flow:work <n>` again. After the verdict, tell the user the PR link and the worktree path, as far as they exist. Never run `/vibe-flow:done` yourself, whatever the verdict.

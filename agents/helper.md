@@ -24,4 +24,4 @@ Counts: <tests passed/failed, lint errors>
 
 ## scope
 
-Compare `git diff --stat <default>...HEAD` and the diff with the plan. Report each changed file outside the files or modules the Approach names, with one line on what changed there; or `IN SCOPE`.
+Compare `git diff --stat origin/<default>...HEAD` and the diff with the plan; the orchestrator has fetched. Report each changed file outside the files or modules the Approach names, with one line on what changed there; or `IN SCOPE`.

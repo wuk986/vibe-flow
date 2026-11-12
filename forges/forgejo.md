@@ -21,6 +21,7 @@ curl -sS -H "Authorization: token $<TOKEN>" -H "Content-Type: application/json" 
 | Read issue | `GET issues/<n>` and `GET issues/<n>/comments` |
 | List open issues | `GET issues?state=open&type=issues&limit=50` |
 | Comment | `POST issues/<n>/comments` `{"body"}` |
+| Edit issue body | `PATCH issues/<n>` `{"body"}` |
 | List labels | `GET labels?limit=100` |
 | Create label | `POST labels` `{"name", "color": "#rrggbb", "description"}` |
 | Update label | `PATCH labels/<id>` `{"description"}` |
@@ -31,7 +32,7 @@ curl -sS -H "Authorization: token $<TOKEN>" -H "Content-Type: application/json" 
 | Create milestone | `POST milestones` `{"title"}` |
 | Create repo | `POST https://<host>/api/v1/user/repos` `{"name", "private": true}`, then add the remote and push |
 | Find PR of branch | `GET pulls?state=open`, match `head.ref` |
-| PR checks | `GET pulls/<index>` → `mergeable` (true or false) and `head.sha`; then `GET commits/<head sha>/status` → `state` (`pending`, `success`, `error`, `failure`; `error` and `failure` count as failed) and `statuses[]` with each check's `context` and `status`. `total_count` 0 means no CI. |
+| PR checks | `GET pulls/<index>` → `mergeable` (true or false) and `head.sha`; `mergeable` can read `false` while the server is still checking a fresh push: treat `false` as not yet known until a poll at least 30 seconds after the push still says `false`. Then `GET commits/<head sha>/status` → `state` (`pending`, `success`, `error`, `failure`; `error` and `failure` count as failed) and `statuses[]` with each check's `context` and `status`. `total_count` 0 means no CI. |
 | Create PR | `POST pulls` `{"head": "<branch>", "base": "<default branch>", "title", "body"}` |
 | Squash-merge | `POST pulls/<index>/merge` `{"Do": "squash", "MergeTitleField": "<commit message>", "delete_branch_after_merge": true}` |
 | Close issue | `PATCH issues/<n>` `{"state": "closed"}` |
@@ -45,7 +46,7 @@ Label ids come from List labels. The issue's status is its one `status/` label; 
 | Set up board | The `status/` labels are created with the other labels in `/setup`. Then ask whether the user wants a board as a view; on yes, set it up in Chrome (Board view) and store its URL in `Board:`, otherwise store `none`. |
 | Set status | Backlog, In Progress, Review: Remove label for each other `status/` label on the issue, then Add labels with the new one. Done: remove every `status/` label; the issue is closed by the merge or by Close issue. Then update the board view. |
 | List issues in a status | `GET issues?state=open&type=issues&labels=status/<status>&limit=50`; Done: `GET issues?state=closed&type=issues&limit=50` |
-| Remove from board | Remove every `status/` label, close the issue, then update the board view. |
+| Remove from board | Remove every `status/` label, then update the board view; the issue itself stays. |
 
 ## Board view (Chrome)
 
