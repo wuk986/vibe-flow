@@ -40,7 +40,7 @@ Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<
 
 ## Models
 
-`/vibe-flow:issue` and `/vibe-flow:work` run planning, building, and review in subagents on models matched to the issue's risk class, which `/vibe-flow:issue` stores as a `risk/` label and `/vibe-flow:work` may only raise. A low-risk issue with an *Approach* skips planning in `/vibe-flow:work` and gets a single light review; stuck steps escalate one level, and after two final review rounds with open findings the run stops and you decide. The model assignment lives in one place: [skills/work/SKILL.md](skills/work/SKILL.md).
+`/vibe-flow:issue` and `/vibe-flow:work` run planning, building, and review in subagents on models matched to the issue's risk class, which `/vibe-flow:issue` stores as a `risk/` label and `/vibe-flow:work` may only raise. Opus plans, Sonnet builds, Haiku runs only the mechanical checks; reviews run on Sonnet (low), Opus (normal), or Fable (high), with an Opus fallback that must answer the whole review checklist. The higher the risk, the stronger planner and reviewer, and a reviewer is never weaker than the worker. A low-risk issue with an *Approach* skips planning in `/vibe-flow:work` and gets a single light review. A stuck step escalates once by one level in model and effort; when it is still stuck, or after two final review rounds with open findings, the run stops and reports. The model assignment lives in one place: [skills/work/SKILL.md](skills/work/SKILL.md).
 
 ## Files
 

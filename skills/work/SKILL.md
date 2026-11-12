@@ -11,20 +11,34 @@ Takes one issue from Backlog (or back from Review with feedback) to Review: gate
 
 ## Subagents
 
-Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` named here. This table and the review table in step 5 are the only place that assigns models; the README links here.
+Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` and `effort` named here. This table and the risk table below are the only place that assigns models; the README links here.
 
-| Role | Model |
-|---|---|
-| planner | its default, `opus` |
-| worker | from the plan or the fast path: `sonnet` or `haiku` |
-| reviewer | from the review table in step 5 |
-| helper | its default, `haiku` |
+| Role | Model | Used for |
+|---|---|---|
+| planner | `opus` | planning in step 3 |
+| worker | `sonnet` | building and every fix |
+| reviewer-light | `sonnet`, mode `light` | the low-risk final review, the high-risk intermediate review |
+| reviewer | `opus` (normal) or `fable` (high), mode `full` | the final review |
+| reviewer-fallback | `opus`, mode `full` with the checklist | the final review when fable is unavailable (step 5) |
+| helper | `haiku` | only the mechanical gate and scope checks |
+
+All three reviewer roles are the `vibe-flow:reviewer` agent with the model, effort, and mode given here.
+
+**Risk**: the higher the risk class, the stronger the planner and the reviewers:
+
+| Risk | Planner | Intermediate review | Final review R1 and R2 |
+|---|---|---|---|
+| low | none on the fast path, else `opus`, effort `medium` | none | reviewer-light: `sonnet`, effort `medium` |
+| normal | `opus`, effort `high` | none | reviewer: `opus`, effort `high` |
+| high | `opus`, effort `xhigh` | reviewer-light: `sonnet`, effort `medium` | reviewer: `fable`, effort `high`; fallback: reviewer-fallback, `opus`, effort `xhigh` |
+
+The worker and the helper run without an effort setting, at their default. **A reviewer is never weaker than the worker**: once the worker has run escalated on `opus`, every later review that this table puts on `sonnet` runs on `opus` instead, with the same mode and effort.
 
 Every role gets the absolute path of the issue's worktree as input and works only there. A subagent's report is a claim. The gate verdict that counts is the helper's.
 
-**Escalation**: once per step, run the worker or reviewer one level higher (haiku → sonnet → opus) when the gate is red twice for the same `Reason`, when the same finding ID appears in two reviews in a row, or when it reports `BLOCKED`. A `BLOCKED` that needs information only the user has → ask the user instead. Fable is never an escalation level.
+**Escalation** raises a role once per run by one level in model and effort: `sonnet` → `opus` with effort `high`; a role already on `opus` or `fable` keeps its model and gets the next effort (`medium` → `high` → `xhigh` → `max`). It applies to the worker when the gate is red twice for the same `Reason`, when the same finding ID appears in two reviews in a row, or when it reports `BLOCKED`; to a reviewer when it reports `BLOCKED`. An escalated role stays escalated for the rest of the run. A `BLOCKED` that needs information only the user has → ask the user instead. Fable is never an escalation level.
 
-**Fix loops end**: every worker fix followed by a gate (steps 4, 5, 6) ends after the escalated worker's attempt. The gate is still red, or the escalated worker reports `BLOCKED` again → end with ❌ (step 8), naming the failing test or the blocker.
+**After the escalation: stop and report.** A second trigger for a role that is already escalated (the gate still red, a `BLOCKED` again) → end with ❌ (step 8): post what failed (the failing test with the helper's `Reason`, or the blocker) as an issue comment and lay it out for the user. There is no second escalation.
 
 ## 1. Pick the issue
 
@@ -51,12 +65,11 @@ The risk class starts from the issue's `risk/` label (CONVENTIONS.md, Risk).
 
 **Continue**: a resume without feedback, on a branch that already has commits beyond `origin/<default>` (e.g. after a ❌ whose cause the user fixed by hand) → no planner and no new build. Post a short plan comment (continue: gate, final review, update), run the gate (step 4.2, with the worker fixing a red gate), then step 4.3, then the final review from R1 with the issue's current risk row, then steps 6–8.
 
-**Fast path**: a fresh run (the branch has no commits beyond `origin/<default>`), the label is `risk/low`, and the issue has an *Approach* → no planner. Choose the worker yourself: `haiku` when the *Approach* names every change file by file and each one is mechanical, otherwise `sonnet`. Post the plan comment in the Kanban language, in this shape:
+**Fast path**: a fresh run (the branch has no commits beyond `origin/<default>`), the label is `risk/low`, and the issue has an *Approach* → no planner. Post the plan comment in the Kanban language, in this shape:
 
 ```
 PLAN (fast path)
 Risk: low (label)
-Worker: haiku | sonnet: <reason>
 Approach: from the issue
 Tests: mapped by the worker, listed in the hand-over
 ```
@@ -65,10 +78,10 @@ Continue with step 4.
 
 Otherwise, on a fresh run or a resume with feedback:
 
-1. Spawn the planner in mode `work`.
+1. Spawn the planner in mode `work`, with the effort of the label's row in the risk table (Subagents); an issue without a `risk/` label → effort `high`.
 2. It returns `QUESTIONS` → ask the user, wait, and continue the same planner with the answers.
-3. Its risk is higher than the label, or the issue has no `risk/` label → set the planner's class as the label.
-4. Post the plan as an issue comment in the Kanban language: risk class with reason (when it was raised: from what and why), worker model, *Tests*, *Deviations*, and *Approach* when the planner wrote one. The issue's own *Approach* is not repeated. On resume, the plan covers only the feedback.
+3. Its risk is higher than the label, or the issue has no `risk/` label → set the planner's class as the label. The plan stands; the new class decides the reviews.
+4. Post the plan as an issue comment in the Kanban language: risk class with reason (when it was raised: from what and why), *Tests*, *Deviations*, and *Approach* when the planner wrote one. The issue's own *Approach* is not repeated. On resume, the plan covers only the feedback.
 
 ## 4. Build
 
@@ -78,26 +91,22 @@ Otherwise, on a fresh run or a resume with feedback:
 
 ## 5. Review
 
-| Risk | Intermediate review | Final review R1 and R2 |
-|---|---|---|
-| low | none | `sonnet`, mode `light` |
-| normal | none | `opus`, mode `full` |
-| high | `opus`, mode `light` | `fable`, mode `full` |
+Models, effort, and modes come from the risk table (Subagents).
 
 1. **Intermediate review**, high risk only → the worker fixes its must-fix findings → gate.
 2. **Final review R1**. Clean → step 6. Must-fix findings → the worker fixes them → gate.
-3. **R2**: the same model as R1 in mode `recheck`, given only the open findings. Clean → step 6.
+3. **R2**: the same model and effort as R1 in mode `recheck`, given only the open findings. Clean → step 6.
 4. Must-fix findings still open after R2 → **stop**: post exactly those findings (ID, `file:line`, problem) as one issue comment, leave the status at In Progress, lay them out for the user, and end with the verdict ❌ (step 8). A third review round does not exist.
 
 Only must-fix findings go to the worker; collect the suggestions for the hand-over. A `CRITICAL` verdict means the change meets a high-risk criterion (CONVENTIONS.md, Risk) on a low- or normal-risk issue: set `risk/high`, post the reason as an issue comment, and start the final review again from R1 with the high row; the intermediate review is not repeated. After each review `git status` in `<wt>` must be clean; otherwise end with ❌ and report what the reviewer changed.
 
-**Fable**: a final review on `fable` counts as unavailable when the call fails or the `REVIEWER:` line names another model. Retry a limit or overload error once; an access error not at all. Fable is tried anew on every run, so a plan upgrade takes effect at once. Unavailable →
+**Fable**: a final review on `fable` counts as unavailable when the call fails or the `REVIEWER:` line names another model. Retry a limit or overload error once; an access error not at all. Fable is tried anew on every run, so a plan upgrade takes effect at once. Unavailable → **reviewer-fallback**:
 
-1. Reviewer on `opus` with effort `high`, mode `full`, and in parallel an independent reviewer on `sonnet`, mode `focus`.
-2. Merge both finding lists and check each finding against the code yourself; drop the ones that do not hold before the worker sees them.
-3. Opus unavailable too → reviewer on `sonnet`, mode `full`, and the hand-over warns of reduced review depth.
+1. Reviewer on `opus`, effort `xhigh`, mode `full` with `checklist`: its report answers every item of the review checklist, each with `ok` or its finding IDs.
+2. Check the report: an item without an answer → continue the same reviewer once with the missing items. Still unanswered → end with ❌ (step 8) and name the items.
+3. Opus unavailable too → the same on `sonnet`, and the hand-over warns of reduced review depth.
 
-After this fallback, R2 runs on `opus` in mode `recheck` with the merged open findings (on `sonnet` when opus was unavailable too).
+R2 then runs on the fallback's model and effort in mode `recheck`.
 
 ## 6. Update and verify
 
@@ -112,7 +121,7 @@ After this fallback, R2 runs on `opus` in mode `recheck` with the merged open fi
    - *Changes*: what behaves differently now, key files, commits.
    - *Tests*: new or changed tests and what each one guards; suite and lint results with counts; the checks result.
    - *Manual check*: the worktree path `<wt>` to run the check in, then numbered steps covering every acceptance criterion (on resume: every feedback point), each with its expected result. Run every step you can run from the command line and quote its real output verbatim, untranslated; mark a step you could not run as *not run*, and say what the user has to look at for it, e.g. a visual check of the rendered page.
-   - *Models*: the models that actually ran, e.g. `plan opus · build sonnet · review <the reviewer's REVIEWER: model ID>`, or `fast path · build haiku · review <model ID>`; a raised risk class, a fallback with its reason, a reduced review depth with its warning.
+   - *Models*: the models that actually ran, with their effort, e.g. `plan opus/high · build sonnet · review <the reviewer's REVIEWER: model ID>/high`, or `fast path · build sonnet · review <model ID>/medium`; an escalation with its trigger, a raised risk class, a fallback with its reason, a reduced review depth with its warning.
    - *Notes*: the reviewers' suggestions and problems noticed outside the scope, as suggested follow-up issues. Omit when empty.
 4. Verdict ✅ or ⏳ → set the status to Review. Verdict ❌ → leave it at In Progress.
 
@@ -124,6 +133,6 @@ Decide exactly one verdict from what this run established, and write it in the K
 |---|---|---|
 | ✅ | Gate green on the final commit, no open must-fix finding, branch up to date with the default branch, PR open and mergeable, checks passed or no CI, and every manual check step that could run gave its expected result | `✅ Ready for /vibe-flow:done <n> after your manual check: <the steps marked not run, or "all steps passed">` |
 | ⏳ | Everything as for ✅, except that checks are still pending after 10 minutes | `⏳ Almost ready: checks still running (<names>). /vibe-flow:done <n> checks them again before merging.` |
-| ❌ | Anything else: a red gate, must-fix findings after R2, a merge conflict, a failed check, a PR that is not mergeable, a manual check step with an unexpected result, or a `BLOCKED` that only the user can resolve | `❌ Not ready: <each reason in one line>. Next: <the concrete next move>` |
+| ❌ | Anything else: a red gate, a role that failed again after its escalation, must-fix findings after R2, a fallback review with unanswered checklist items, a merge conflict, a failed check, a PR that is not mergeable, a manual check step with an unexpected result, or a `BLOCKED` that only the user can resolve | `❌ Not ready: <each reason in one line>. Next: <the concrete next move>` |
 
 The next move for ❌ names what fits, e.g. `/vibe-flow:work <n> <feedback>` after the user decided on the findings, or resolving the conflict in `<wt>` and running `/vibe-flow:work <n>` again. After the verdict, tell the user the PR link and the worktree path, as far as they exist. Never run `/vibe-flow:done` yourself, whatever the verdict.
