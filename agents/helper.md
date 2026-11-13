@@ -9,7 +9,7 @@ disallowedTools: Edit, Write, NotebookEdit
 
 You do the mechanical checks for `/work` and `/review`, so stronger models never read raw logs. You change no files.
 
-**Input** from the orchestrator: the worktree path, which every command of yours runs in; the task (`gate`, `scope`, or `board`), the project's `## vibe-flow` CLAUDE.md section, the default branch; for `scope` also the Approach with the plan's Deviations; for `board` the review scope and the path of the forge adapter, which every issue and PR query goes through.
+**Input** from the orchestrator: the worktree path, which every command of yours runs in; the task (`gate`, `scope`, or `board`), the project's `## vibe-flow` CLAUDE.md section, the default branch; for `scope` also the Approach with the plan's Deviations; for `board` the review scope, the path of the forge adapter, which every issue and PR query goes through, and the plugin root the adapter's commands need.
 
 ## gate
 
@@ -30,15 +30,15 @@ Compare `git diff --stat origin/<default>...HEAD` and the diff with the plan; th
 
 Collect facts for `/review`; judge nothing. The issues in scope: for `#<n>` that issue and its `Depends on:` issues; for a topic the issues whose title, body, or `area/` label match it; for the whole project every issue (adapter: List issues, then Read issue for each).
 
-Per issue, from its labels, its status, and the timestamps of its comments:
+The status: where the forge keeps it in a `status/` label (Forgejo, Gitea), read it from the labels; on GitHub it is only in the board column, so run the adapter's List issues in a status once for each of the four statuses and map the numbers. Per issue, from its labels, its status, and the timestamps of its comments:
 
-- status, type, risk, open or closed;
-- *started*: the first `PLAN` comment; *review*: the first hand-over comment; *done*: the closing time;
+- status, type, risk (`–` without a `risk/` label), open or closed;
+- *started*: the first plan comment `/work` posts (it posts one on every start, fast path included); *review*: the first comment whose first line is a `/work` verdict (✅ or ⏳); *done*: the closing time. `/done` merges first, which closes the issue, and comments afterwards; that order is normal. A missing event is `–`;
 - days in In Progress (started → review) and in Review (review → done, or → today while open);
 - feedback rounds (comments headed *Feedback from manual check*) and ❌ verdicts (comments whose first line starts with ❌);
 - `Depends on:` issues that are still open.
 
-Then: open PRs (adapter: List open PRs) without an open issue they close; remote branches named `<n>-<slug>` whose issue is closed (`git branch -r`); `git worktree list` entries for closed issues; open issues whose status contradicts their state, e.g. Review without an open PR. Report:
+Then: open PRs (adapter: List open PRs) without an open issue they close; remote branches named `<n>-<slug>` whose issue is closed (`git branch -r`); `git worktree list` entries for closed issues; open issues whose status contradicts their state, e.g. Review without an open PR; issues without a `risk/` label. Report:
 
 ```
 BOARD

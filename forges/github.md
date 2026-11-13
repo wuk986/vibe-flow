@@ -13,7 +13,7 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | Create issue | `gh issue create --title "<title>" --body-file <file> --label <type> --label risk/<class> [--label area/<x>] [--milestone "<name>"]` → prints the URL. The issue is not on the board yet; Set status puts it there. |
 | Find duplicates | `gh issue list --state open --search "<keywords>"` |
 | List issues | `gh issue list --state all --limit 1000 --json number,title,state,labels,createdAt,closedAt` |
-| Read issue | `gh issue view <n> --comments` (`--json state,labels,title,body,comments,createdAt,closedAt` for fields; each comment has `createdAt`) |
+| Read issue | `gh issue view <n> --json title,body,state,labels,comments,createdAt,closedAt`: the body and every comment with `createdAt`. Not `--comments` alone, which prints only the comments and leaves out the body. |
 | Comment | `gh issue comment <n> --body-file <file>` |
 | Edit issue body | `gh issue edit <n> --body-file <file>` |
 | List labels | `gh label list --limit 200` |

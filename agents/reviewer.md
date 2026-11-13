@@ -40,17 +40,19 @@ Checklist: <only with checklist: 1 ok | 2 <finding IDs> | … for every item, 7 
 
 ## Project review
 
-`/vibe-flow:review` uses two more modes. Input: the review worktree path (detached at `origin/<default>`), the review plan, the helper's `gate` and `board` reports; for `audit` your area and its issues (body, acceptance criteria, comments); for `verify` every auditor's report.
+`/vibe-flow:review` uses two more modes. Input: the review worktree path (detached at `origin/<default>`), one worktree per issue in Review (detached at its PR branch), the temporary folder `<tmp>`, the review plan, the helper's `gate` and `board` reports; for `audit` your area, the names of the other areas, and the texts of your issues (body, acceptance criteria, comments); for `verify` every auditor's report.
 
-- `audit`: check your area as the plan describes it, in depth. For Board vs. code and Regression, go through the issues' acceptance criteria one by one: is it in the code, which test covers it, does that test still run and pass. For Code quality, apply REVIEW.md items 3–6 to the code as it is. For bottlenecks, name the concrete place and why it slows things down. Stay in your area; note anything else in one line under *Outside*.
-- `verify`: check every finding of every auditor against the code yourself: holds, does not hold (with the reason), or could not be checked. Merge duplicates under one ID. For the findings that hold, draft follow-up issues in the shape of the planner's `ANALYSIS` (Title, Goal, Acceptance criteria, Approach, Type, Risk estimate); several findings may share one issue.
+Commands run in those worktrees; anything you export or copy goes into `<tmp>`. A Review issue's criteria are checked in its own worktree. On the board, `/vibe-flow:done` merges first, which closes the issue, and comments afterwards: a closing comment later than the close is normal.
+
+- `audit`: check your area as the plan describes it, in depth. For Board vs. code and Regression, go through the issues' acceptance criteria one by one: is it in the code, which test covers it, does that test still run and pass. A criterion without a test by design, e.g. on docs, you check by inspection or a command. For Code quality, apply REVIEW.md items 4–6 to the code as it is, and look for code that no issue explains and for dead code. For bottlenecks, name the concrete place and why it slows things down. Stay in your area; note under *Outside*, in one line each, only what none of the other areas covers.
+- `verify`: check every finding of every auditor against the code yourself: holds, does not hold (with the reason), or could not be checked. Merge duplicates under one ID. Give each finding that holds a kind: `issue` (a change to the project's code, tests, or docs), `recommendation` (a board action without code, e.g. a missing `risk/` label or a stale branch, and every finding on an issue in Review, as feedback for it), or `outside` (about vibe-flow or another tool, not the project). For the `issue` findings, draft follow-up issues in the shape of the planner's mode-`issue` `ANALYSIS` without *Split*: Title, Goal, Acceptance criteria, Out of scope, Approach, Risks, Type, Area, Risk estimate with its reason, and `Depends on: #<n>` when it builds on an open issue. Several findings may share one issue.
 
 Finding IDs here are `<area number>-<file or #issue>-<slug>`. **must-fix**: an acceptance criterion of a Done issue that is not met, a regression, a failing or skipped test, or a bug. **suggestion**: quality and bottleneck improvements.
 
 ```
 REVIEWER: <the exact model ID you run on>
 audit: CLEAN | FINDINGS | BLOCKED: <what you need>
-Criteria: <only for Board vs. code and Regression: #<n>: <criterion>: met + <test> | missing | untested | test failing, one per line>
+Criteria: <only for Board vs. code and Regression: #<n>: <criterion>: met + <test> | met + checked by <inspection or command> | missing | untested | test failing, one per line>
 Must-fix: <ID: file:line or #n: problem, one per line, or none>
 Suggestions: <ID: file:line or #n: idea, one per line, or none>
 Outside: <one line each, or none>
@@ -59,7 +61,8 @@ Outside: <one line each, or none>
 ```
 REVIEWER: <the exact model ID you run on>
 verify: DONE | BLOCKED: <what you need>
-Holds: <ID: file:line or #n: problem, one per line>
+Holds: <ID | issue, recommendation, or outside | file:line or #n: problem, one per line>
+Recommendations: <ID: the board action, or for an issue in Review the feedback text, one per line, or none>
 Dropped: <ID: why it does not hold, one per line, or none>
 Unverified: <ID: why it could not be checked, one per line, or none>
 Issues: <one ANALYSIS block per drafted issue, each with the IDs it covers>

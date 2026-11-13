@@ -72,6 +72,7 @@ Load the version under test before you start, in a fresh session:
 - [ ] **Topic**: `/vibe-flow:review <an area or topic>`. Expected: the planner names the issues and code the topic covers, or asks when that is unclear.
 - [ ] **Whole project**: `/vibe-flow:review` without argument. Expected: at most six areas; the *Bottlenecks* section names days in In Progress and Review, feedback rounds, ❌ verdicts, and stale branches, worktrees, or PRs.
 - [ ] **Follow-ups**: drop one drafted issue and edit another. Expected: only the confirmed ones are created, in Backlog, each with `Found in review #<review issue>`; the review issue lists them and is closed; the review worktree is removed.
+- [ ] **Issue in Review**: run a review while one issue sits in Review with an open PR. Expected: its criteria are checked in a worktree `review-<…>-<n>` on its PR branch; a finding on it appears under *Recommendations* as a `/vibe-flow:work <n> <feedback>` call, not as a new issue; a missing `risk/` label likewise shows up as a recommendation.
 - [ ] **No code change**: after the review, `git status` in the main checkout and `git log origin/<default>` are unchanged.
 
 ## Forges
