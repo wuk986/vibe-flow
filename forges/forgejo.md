@@ -20,6 +20,7 @@ curl -sS -H "Authorization: token $<TOKEN>" -H "Content-Type: application/json" 
 | Find duplicates | `GET issues?state=open&type=issues&q=<keywords>` |
 | Read issue | `GET issues/<n>` and `GET issues/<n>/comments` |
 | List open issues | `GET issues?state=open&type=issues&limit=50` |
+| List issues | `GET issues?state=all&type=issues&limit=50&page=<p>`, from page 1 on until a page returns fewer than 50 → `number`, `title`, `state`, `labels`, `created_at`, `closed_at`. Comments from Read issue carry `created_at`. |
 | Comment | `POST issues/<n>/comments` `{"body"}` |
 | Edit issue body | `PATCH issues/<n>` `{"body"}` |
 | List labels | `GET labels?limit=100` |
@@ -31,6 +32,7 @@ curl -sS -H "Authorization: token $<TOKEN>" -H "Content-Type: application/json" 
 | List milestones | `GET milestones?state=open` |
 | Create milestone | `POST milestones` `{"title"}` |
 | Create repo | `POST https://<host>/api/v1/user/repos` `{"name", "private": true}`, then add the remote and push |
+| List open PRs | `GET pulls?state=open&limit=50` → `number`, `title`, `head.ref`, `body` |
 | Find PR of branch | `GET pulls?state=open`, match `head.ref` |
 | PR checks | `GET pulls/<index>` → `mergeable` (true or false) and `head.sha`; `mergeable` can read `false` while the server is still checking a fresh push: treat `false` as not yet known until a poll at least 30 seconds after the push still says `false`. Then `GET commits/<head sha>/status` → `state` (`pending`, `success`, `error`, `failure`; `error` and `failure` count as failed) and `statuses[]` with each check's `context` and `status`. `total_count` 0 means no CI. |
 | Create PR | `POST pulls` `{"head": "<branch>", "base": "<default branch>", "title", "body"}` |

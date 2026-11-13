@@ -11,7 +11,7 @@ Takes one issue from Backlog (or back from Review with feedback) to Review: gate
 
 ## Subagents
 
-Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` and `effort` named here. This table and the risk table below are the only place that assigns models; the README links here.
+Spawn each role as described in Subagents in CONVENTIONS.md, with the `model` and `effort` named here. This table and the risk table below are the only place that assigns models for `/work`; `/vibe-flow:review` has its own table. The README links here.
 
 | Role | Model | Used for |
 |---|---|---|
