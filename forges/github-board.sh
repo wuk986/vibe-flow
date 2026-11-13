@@ -19,14 +19,20 @@ status_field() { # <project> <jq suffix>
 case "${1:-}" in
   init)
     title=$2
-    number=$(gh project list --owner "$owner" --format json -q ".projects[] | select(.title==\"$title\") | .number" | head -n1)
+    number=$(gh project list --owner "$owner" --limit 500 --format json -q ".projects[] | select(.title==\"$title\") | .number" | head -n1)
     if [ -z "$number" ]; then
       number=$(gh project create --owner "$owner" --title "$title" --format json -q .number)
     fi
     gh project link "$number" --owner "$owner" --repo "$repo" >/dev/null  # no-op when already linked
     current=$(status_field "$number" '| [.options[].name] | join(",")')
     if [ "$current" != "$STATUSES" ]; then
-      # Replaces the options; only runs while the board is not yet set up.
+      # Replacing the options resets every card's status, so only do it on a board without cards.
+      items=$(gh project item-list "$number" --owner "$owner" --limit 1 --format json -q '.items | length')
+      if [ "$items" != "0" ]; then
+        echo "Board $number has cards but its Status options are \"$current\", not \"$STATUSES\"." >&2
+        echo "Rename or add the options by hand in the board settings, then run init again." >&2
+        exit 1
+      fi
       gh api graphql -f fieldId="$(status_field "$number" '| .id')" -f query='
         mutation($fieldId: ID!) {
           updateProjectV2Field(input: {fieldId: $fieldId, singleSelectOptions: [

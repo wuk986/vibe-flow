@@ -6,7 +6,7 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 
 | Operation | Command |
 |---|---|
-| Set up board | `board init "<repo name>"` → prints `<P>`; safe to re-run |
+| Set up board | `board init "<repo name>"` → prints `<P>`; safe to re-run. It stops instead of resetting cards when a board with cards has other Status options; then tell the user what it printed. |
 | Set status | `board status <P> <n> "<Status>"` (adds the issue to the board if needed) |
 | List issues in a status | `board list <P> "<Status>"` |
 | Remove from board | `board remove <P> <n>` (the issue itself stays) |
@@ -14,6 +14,7 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | Find duplicates | `gh issue list --state open --search "<keywords>"` |
 | Read issue | `gh issue view <n> --comments` (`--json state,labels,title` for fields) |
 | Comment | `gh issue comment <n> --body-file <file>` |
+| Edit issue body | `gh issue edit <n> --body-file <file>` |
 | List labels | `gh label list --limit 200` |
 | Set risk label | `gh issue edit <n> --remove-label risk/<old> --add-label risk/<new>` (without `--remove-label` when the issue has none) |
 | Create label | `gh label create "<name>" --color <hex> --description "<text>" --force`; on an existing label this updates color and description |
