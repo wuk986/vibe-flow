@@ -1,8 +1,8 @@
 # Forgejo and Gitea adapter
 
-Serves both forges: Forgejo began as a fork of Gitea, and the REST API and web UI used here are the same on both. `gitea.md` points here.
+Forgejo began as a fork of Gitea, and the REST API and web UI used here are the same on both. `gitea.md` uses the REST API section below, and on Gitea before 28.0.0 also the status labels and the board view.
 
-Issues, comments, labels, milestones, PRs, and the status use the REST API. Forgejo has no API for project boards, and Gitea's is too new to rely on, so the status lives in `status/` labels (CONVENTIONS.md, Board). The board itself is an optional view, kept up in the user's Chrome through Claude in Chrome on the board URL from the CLAUDE.md `Board:` line, as far as that works.
+Issues, comments, labels, milestones, PRs, and the status use the REST API. Forgejo has no API for project boards, so the status lives in `status/` labels (CONVENTIONS.md, Board); so does Gitea's before 28.0.0. Gitea 28.0.0 or later keeps it on its board instead (`gitea.md`), with no `status/` labels. The board itself is an optional view, kept up in the user's Chrome through Claude in Chrome on the board URL from the CLAUDE.md `Board:` line, as far as that works.
 
 ## REST API
 

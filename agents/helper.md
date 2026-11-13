@@ -30,7 +30,7 @@ Compare `git diff --stat origin/<default>...HEAD` and the diff with the plan; th
 
 Collect facts for `/review`; judge nothing. The issues in scope: for `#<n>` that issue and its `Depends on:` issues; for a topic the issues whose title, body, or `area/` label match it; for the whole project every issue (adapter: List issues, then Read issue for each). Review issues (title starting with `Review:`) never have a status: list them only in the `Reviews` line, never under Issues or Inconsistent.
 
-The status: where the forge keeps it in a `status/` label (Forgejo, Gitea), read it from the labels; on GitHub it is only in the board column, so run the adapter's List issues in a status once for each of the four statuses and map the numbers. Per issue, from its labels, its status, and the timestamps of its comments:
+The status: where the forge keeps it in a `status/` label (Forgejo, and Gitea without a project id in `Board:`), read it from the labels; where it is only in a board column (GitHub, and Gitea with a project id), run the adapter's List issues in a status once for each of the four statuses and map the numbers. Per issue, from its labels, its status, and the timestamps of its comments:
 
 - status, type, risk (`–` without a `risk/` label), open or closed;
 - *started*: the first plan comment `/work` posts (it posts one on every start, fast path included); *review*: the first comment whose first line is a `/work` verdict (✅ or ⏳), or, from older versions without a verdict line, the first hand-over comment (headed *Hand-over* or its translation, e.g. *Übergabe*); *done*: the closing time. `/done` merges first, which closes the issue, and comments afterwards; that order is normal. A missing event is `–`;

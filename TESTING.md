@@ -79,5 +79,5 @@ Load the version under test before you start, in a fresh session:
 ## Forges
 
 - [ ] **Forgejo**: the status lives in `status/` labels set over REST; Done is the closed issue; with `Board: none` no Chrome step runs; with a board URL the board view is updated through Claude in Chrome, or you get the manual step in one line.
-- [ ] **Gitea 28 or later**: the status lives in the repo's project board, set over the API, like GitHub. (Planned: the Gitea board adapter.)
+- [ ] **Gitea 28 or later**: `/setup` stores a project id in `Board:` and creates a project in the repo with exactly the four columns, Backlog as default; a re-run changes nothing. `/issue`, `/work`, and `/done` move the card through the columns over the API, with no `status/` labels and no Chrome step; Done is the Done column plus the closed issue.
 - [ ] **Gitea before 28**: falls back to the Forgejo label path. Not tested regularly.
