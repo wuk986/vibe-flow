@@ -9,7 +9,7 @@
     {
       "name": "vibe-flow",
       "source": "./",
-      "description": "Kanban-driven vibe coding workflow: /vibe-flow:setup, /vibe-flow:issue, /vibe-flow:work, /vibe-flow:done.",
+      "description": "Kanban-driven vibe coding workflow: /vibe-flow:setup, /vibe-flow:issue, /vibe-flow:work, /vibe-flow:done, /vibe-flow:review.",
       "category": "development"
     }
   ]
