@@ -14,6 +14,7 @@ A kanban-driven vibe coding workflow for Claude Code, usable in any project. The
 | `/vibe-flow:issue <description>` | Planner analysis with questions until nothing is open; issue with goal, acceptance criteria, out of scope, approach, risks, assets, labels; added to Backlog with its risk label after your OK |
 | `/vibe-flow:work [#n] [feedback]` | Worktree and branch, plan comment (or the fast path for low-risk issues), test-first implementation, risk-based review, merge of the default branch, green tests + lint, PR, CI checks, hand-over comment, Review; ends with a verdict: ✅ ready for `/vibe-flow:done`, ⏳ checks still running, or ❌ not ready with reasons |
 | `/vibe-flow:done [#n]` | After your manual check: squash-merge, close the issue, Done, remove the worktree |
+| `/vibe-flow:review [#n \| topic]` | Review of one issue, a topic, or the whole project: a planner defines it, you confirm it; checks board vs. code, regressions, code quality, and bottlenecks in code and board flow; posts a report on a review issue and turns confirmed findings into Backlog issues after your OK |
 
 ## Install
 
@@ -40,7 +41,7 @@ Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<
 
 ## Models
 
-`/vibe-flow:issue` and `/vibe-flow:work` run planning, building, and review in subagents on models matched to the issue's risk class, which `/vibe-flow:issue` stores as a `risk/` label and `/vibe-flow:work` may only raise. Opus plans, Sonnet builds, Haiku runs only the mechanical checks; reviews run on Sonnet (low), Opus (normal), or Fable (high), with an Opus fallback that must answer the whole review checklist. The higher the risk, the stronger planner and reviewer, and a reviewer is never weaker than the worker. A low-risk issue with an *Approach* skips planning in `/vibe-flow:work` and gets a single light review. A stuck step escalates once by one level in model and effort; when it is still stuck, or after two final review rounds with open findings, the run stops and reports. The model assignment lives in one place: [skills/work/SKILL.md](skills/work/SKILL.md).
+`/vibe-flow:issue` and `/vibe-flow:work` run planning, building, and review in subagents on models matched to the issue's risk class, which `/vibe-flow:issue` stores as a `risk/` label and `/vibe-flow:work` may only raise. Opus plans, Sonnet builds, Haiku runs only the mechanical checks; reviews run on Sonnet (low), Opus (normal), or Fable (high), with an Opus fallback that must answer the whole review checklist. The higher the risk, the stronger planner and reviewer, and a reviewer is never weaker than the worker. A low-risk issue with an *Approach* skips planning in `/vibe-flow:work` and gets a single light review. A stuck step escalates once by one level in model and effort; when it is still stuck, or after two final review rounds with open findings, the run stops and reports. The model assignment lives in one place per skill: [skills/work/SKILL.md](skills/work/SKILL.md) and, for `/vibe-flow:review` (planner opus, auditors sonnet, verifier opus with a fable fallback, helper haiku), [skills/review/SKILL.md](skills/review/SKILL.md).
 
 ## Files
 
@@ -50,7 +51,7 @@ Each issue gets its own git worktree next to the project, `../<repo>.worktrees/<
 - [REVIEW.md](REVIEW.md): the review checklist
 - [TESTING.md](TESTING.md): the manual test plan for vibe-flow itself, run before each release
 - [forges/](forges/): adapters for GitHub (`gh`) and Forgejo/Gitea (REST, plus Claude in Chrome for an optional board view)
-- [skills/](skills/): the four skills
+- [skills/](skills/): the five skills
 - [agents/](agents/): the subagent roles `/vibe-flow:work` orchestrates; planner, reviewer, and helper cannot edit files
 
 ## Requirements

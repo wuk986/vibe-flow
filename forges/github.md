@@ -12,7 +12,8 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | Remove from board | `board remove <P> <n>` (the issue itself stays) |
 | Create issue | `gh issue create --title "<title>" --body-file <file> --label <type> --label risk/<class> [--label area/<x>] [--milestone "<name>"]` → prints the URL. The issue is not on the board yet; Set status puts it there. |
 | Find duplicates | `gh issue list --state open --search "<keywords>"` |
-| Read issue | `gh issue view <n> --comments` (`--json state,labels,title` for fields) |
+| List issues | `gh issue list --state all --limit 1000 --json number,title,state,labels,createdAt,closedAt` |
+| Read issue | `gh issue view <n> --comments` (`--json state,labels,title,body,comments,createdAt,closedAt` for fields; each comment has `createdAt`) |
 | Comment | `gh issue comment <n> --body-file <file>` |
 | Edit issue body | `gh issue edit <n> --body-file <file>` |
 | List labels | `gh label list --limit 200` |
@@ -21,6 +22,7 @@ Everything runs through `gh` inside the project checkout. It needs the `repo` an
 | List milestones | `gh api "repos/{owner}/{repo}/milestones?state=open" -q '.[].title'` |
 | Create milestone | `gh api repos/{owner}/{repo}/milestones -f title="<name>"` |
 | Create repo | `gh repo create <name> --private --source . --push` |
+| List open PRs | `gh pr list --state open --limit 200 --json number,title,headRefName,body` |
 | Find PR of branch | `gh pr view <branch> --json number,url,state,mergeable,statusCheckRollup` |
 | PR checks | `gh pr checks <pr> --json name,bucket`: each check's `bucket` is `pass`, `fail`, `pending`, `skipping`, or `cancel` (`fail` and `cancel` count as failed). The error "no checks reported" means no CI. Mergeability: `gh pr view <pr> --json mergeable` → `MERGEABLE`, `CONFLICTING`, or `UNKNOWN` (GitHub is still computing it: ask again on the next poll). |
 | Create PR | `gh pr create --head <branch> --title "<title>" --body-file <file>` |

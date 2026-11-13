@@ -1,6 +1,6 @@
 # vibe-flow conventions
 
-Shared reference for the vibe-flow skills `/vibe-flow:setup`, `/vibe-flow:issue`, `/vibe-flow:work`, `/vibe-flow:done`; below they are named without the `vibe-flow:` prefix. The kanban board is the source of truth: everything about an issue and the work done on it lives there, nothing is mirrored into repo files.
+Shared reference for the vibe-flow skills `/vibe-flow:setup`, `/vibe-flow:issue`, `/vibe-flow:work`, `/vibe-flow:done`, `/vibe-flow:review`; below they are named without the `vibe-flow:` prefix. The kanban board is the source of truth: everything about an issue and the work done on it lives there, nothing is mirrored into repo files.
 
 ## Plugin root
 
@@ -44,7 +44,7 @@ Four statuses, in order. On GitHub the status lives only in the board column. On
 
 Several issues may sit in In Progress, each in its own worktree (see Git).
 
-A withdrawn issue is closed without a merge (adapter: Close issue) and taken off the board (adapter: Remove from board, which on every forge leaves the issue itself alone); no status fits it.
+A withdrawn issue is closed without a merge (adapter: Close issue) and taken off the board (adapter: Remove from board, which on every forge leaves the issue itself alone); no status fits it. A review issue from `/review` never gets a status: it holds the report and is closed by `/review` itself.
 
 ## Assets
 
