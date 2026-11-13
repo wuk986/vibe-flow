@@ -65,6 +65,17 @@ Load the version under test before you start, in a fresh session:
 - [ ] **Cleanup**: the worktree is removed, the `../<repo>.worktrees` folder too once it is empty, the local branch is deleted, and the main checkout is pulled only when it is on the default branch.
 - [ ] **Dirty worktree**: leave an uncommitted change in the worktree. Expected: `/done` merges, then stops at the worktree and shows the change.
 
+## `/vibe-flow:review`
+
+- [ ] **One issue**: `/vibe-flow:review #<a Done issue>`. Expected: a review worktree detached at `origin/<default>`; a gate run; a `REVIEW PLAN` from the planner that you confirm; a review issue `Review: #<n> (<date>)` with labels `chore` and `risk/low` and no status; auditors on sonnet, a verifier on opus; a report whose first line is ✅ or ⚠️ and that lists every acceptance criterion with its test.
+- [ ] **Regression found**: before the review, delete or skip the test of one criterion of a Done issue on the default branch. Expected: a must-fix finding naming the criterion and the missing test; a drafted follow-up issue.
+- [ ] **Topic**: `/vibe-flow:review <an area or topic>`. Expected: the planner names the issues and code the topic covers, or asks when that is unclear.
+- [ ] **Whole project**: `/vibe-flow:review` without argument. Expected: at most six areas; the *Bottlenecks* section names days in In Progress and Review, feedback rounds, ❌ verdicts, and stale branches, worktrees, or PRs.
+- [ ] **Follow-ups**: drop one drafted issue and edit another. Expected: only the confirmed ones are created, in Backlog, each with `Found in review #<review issue>`; the review issue lists them and is closed; the review worktree is removed.
+- [ ] **Issue in Review**: run a review while one issue sits in Review with an open PR. Expected: its criteria are checked in a worktree `review-<…>-<n>` on its PR branch; a finding on it appears under *Recommendations* as a `/vibe-flow:work <n> <feedback>` call, not as a new issue; a missing `risk/` label likewise shows up as a recommendation.
+- [ ] **Earlier open review**: start a review while an earlier review issue is still open. Expected: `/review` shows it and asks whether to finish it first; going on, its findings appear only under *Known* and are neither drafted nor counted again.
+- [ ] **No code change**: after the review, `git status` in the main checkout and `git log origin/<default>` are unchanged.
+
 ## Forges
 
 - [ ] **Forgejo**: the status lives in `status/` labels set over REST; Done is the closed issue; with `Board: none` no Chrome step runs; with a board URL the board view is updated through Claude in Chrome, or you get the manual step in one line.
